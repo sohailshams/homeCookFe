@@ -1,6 +1,10 @@
 import React from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import axios from "axios";
+import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
+
+axios.defaults.withCredentials = true;
 
 type LoginFormInputs = {
   email: string;
@@ -8,6 +12,9 @@ type LoginFormInputs = {
 };
 
 const Login: React.FC = () => {
+  // const {token, setToken} = useContext(AuthContext);
+  const { token, setToken, user, setUser } = useAuth();
+  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
@@ -15,22 +22,29 @@ const Login: React.FC = () => {
   } = useForm<LoginFormInputs>();
 
   const onSubmit: SubmitHandler<LoginFormInputs> = async (data) => {
+    const headers = { credentials: "include" };
+    const parameters = { useCookies: true };
+
     console.log("data", data);
     try {
       const response = await axios.post(
         "https://localhost:7145/api/login",
-        data
+        data,
+        {
+          headers: headers,
+          params: parameters,
+        }
       );
       const token = response.data.accessToken;
       console.log("response", response);
 
-      // Save token to localStorage or a secure place
-      localStorage.setItem("authToken", token);
-
       // Redirect or handle successful login
+      setToken(token);
+      navigate("/test");
       console.log("Login successful", token);
     } catch (error) {
       console.error("Login failed", error);
+      setToken(null);
       alert("Invalid credentials");
     }
   };
