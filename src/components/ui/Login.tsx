@@ -48,7 +48,7 @@ const Login: React.FC = () => {
       });
 
       // Redirect or handle successful login
-      navigate("/test");
+      navigate("/food-list");
       console.log("Login successful");
     } catch (error) {
       console.error("Login failed", error);
