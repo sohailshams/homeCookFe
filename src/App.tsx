@@ -1,13 +1,13 @@
 import "./App.css";
 import Test from "./components/Test";
-import { Button } from "./components/ui/button";
 import Login from "./components/ui/Login";
 import { Routes, Route } from "react-router-dom";
+import { Toaster } from "sonner";
 
 function App() {
   return (
     <>
-      <Button>ShadCN Button</Button>
+      <Toaster position="bottom-left" />
       <p className="text-3xl font-bold underline text-red-500">Home Cook</p>
       <Routes>
         <Route path="/" element={<Login />} />
