@@ -1,11 +1,15 @@
 import axios from "axios";
-import { createContext, useContext, useLayoutEffect, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useState,
+} from "react";
 
 import { useNavigate } from "react-router-dom";
 
 type AuthContextType = {
-  token: string | null;
-  setToken: React.Dispatch<React.SetStateAction<string | null>>;
   user: any;
   setUser: React.Dispatch<React.SetStateAction<any>>;
 };
@@ -18,9 +22,36 @@ export const AuthContext = createContext<AuthContextType | undefined>(
 );
 
 export const AuthProvider = ({ children }: ContextChildren) => {
-  const [token, setToken] = useState<string | null>(null);
-  const [user, setUser] = useState<any | null>(null);
+  const localUser = localStorage.getItem("user");
+  const parsedUser = localUser ? JSON.parse(localUser) : null;
+  const [user, setUser] = useState<any | null>(parsedUser);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      if (user === null) {
+        navigate("/", {
+          state: { message: "Please login." },
+        });
+        return;
+      }
+      try {
+        const response = await axios.get("https://localhost:7145/api/user", {
+          withCredentials: true,
+        });
+        setUser(response.data);
+        localStorage.setItem("user", JSON.stringify(response.data));
+      } catch (error) {
+        setUser(null);
+        localStorage.removeItem("user");
+        navigate("/", {
+          state: { message: "Session expired. Please log in again." },
+        });
+      }
+    };
+
+    fetchUser();
+  }, []);
 
   useLayoutEffect(() => {
     // Handle 401 responses (expired tokens)
@@ -28,6 +59,7 @@ export const AuthProvider = ({ children }: ContextChildren) => {
       (response) => response,
       async (error) => {
         if (error.response?.status === 401) {
+          localStorage.removeItem("user");
           navigate("/", {
             state: { message: "Session expired. Please log in again." },
           });
@@ -41,7 +73,7 @@ export const AuthProvider = ({ children }: ContextChildren) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ token, setToken, user, setUser }}>
+    <AuthContext.Provider value={{ user, setUser }}>
       {children}
     </AuthContext.Provider>
   );
