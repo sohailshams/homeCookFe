@@ -14,18 +14,17 @@ type LoginFormInputs = {
 };
 
 const Login: React.FC = () => {
-  // const {token, setToken} = useContext(AuthContext);
-  // const { token, setToken, user, setUser } = useAuth();
+  const { setUser } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
     if (location.state?.message) {
       toast.error(location.state.message, {
-        duration: Infinity, // Keeps the toast visible
+        duration: Infinity,
         action: {
           label: <X />,
-          onClick: () => toast.dismiss(), // Allows user to close it
+          onClick: () => toast.dismiss(),
         },
         id: "session-expired-toast",
       });
@@ -48,11 +47,27 @@ const Login: React.FC = () => {
       });
 
       // Redirect or handle successful login
+      const userInfoResponse = await axios.get(
+        "https://localhost:7145/api/user",
+        {
+          withCredentials: true,
+        }
+      );
+      setUser(userInfoResponse.data);
+      localStorage.setItem("user", JSON.stringify(userInfoResponse.data));
       navigate("/food-list");
-      console.log("Login successful");
-    } catch (error) {
-      console.error("Login failed", error);
-      alert("Invalid credentials");
+    } catch {
+      setUser(null);
+      localStorage.removeItem("user");
+      toast.error("Failed to login, please try again", {
+        duration: Infinity,
+        action: {
+          label: <X />,
+          onClick: () => toast.dismiss(),
+        },
+        id: "login-fail-toast",
+      });
+      navigate("/");
     }
   };
 
