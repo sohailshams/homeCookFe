@@ -3,6 +3,7 @@ import axios from "axios";
 import { X } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
+import Spinner from "./Spinner";
 
 const fetchFoodList = async () => {
   const parameters = { useCookies: true };
@@ -15,7 +16,6 @@ const fetchFoodList = async () => {
 
 const FoodList: React.FC = () => {
   const { user } = useAuth();
-
   const {
     data: food,
     isLoading,
@@ -39,7 +39,7 @@ const FoodList: React.FC = () => {
     });
   }
 
-  if (isLoading) return <div>Loading food list...</div>;
+  if (isLoading) return <Spinner />;
 
   return (
     <div>
