@@ -5,8 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "sonner";
 import { X } from "lucide-react";
-
-axios.defaults.withCredentials = true;
+import { useMutation } from "@tanstack/react-query";
 
 type LoginFormInputs = {
   email: string;
@@ -17,6 +16,20 @@ const Login: React.FC = () => {
   const { setUser } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+
+  const loginUser = async (data: LoginFormInputs) => {
+    const parameters = { useCookies: true };
+    return await axios.post("https://localhost:7145/api/login", data, {
+      withCredentials: true,
+      params: parameters,
+    });
+  };
+
+  const fetchUserInfo = async () => {
+    return await axios.get("https://localhost:7145/api/user", {
+      withCredentials: true,
+    });
+  };
 
   useEffect(() => {
     if (location.state?.message) {
@@ -37,26 +50,9 @@ const Login: React.FC = () => {
     formState: { errors },
   } = useForm<LoginFormInputs>();
 
-  const onSubmit: SubmitHandler<LoginFormInputs> = async (data) => {
-    const parameters = { useCookies: true };
-    console.log("data", data);
-    try {
-      await axios.post("https://localhost:7145/api/login", data, {
-        withCredentials: true,
-        params: parameters,
-      });
-
-      // Redirect or handle successful login
-      const userInfoResponse = await axios.get(
-        "https://localhost:7145/api/user",
-        {
-          withCredentials: true,
-        }
-      );
-      setUser(userInfoResponse.data);
-      localStorage.setItem("user", JSON.stringify(userInfoResponse.data));
-      navigate("/food-list");
-    } catch {
+  const { mutate: loginMutation } = useMutation({
+    mutationFn: loginUser,
+    onError: () => {
       setUser(null);
       localStorage.removeItem("user");
       toast.error("Failed to login, please try again", {
@@ -68,7 +64,19 @@ const Login: React.FC = () => {
         id: "login-fail-toast",
       });
       navigate("/");
-    }
+    },
+
+    onSuccess: async () => {
+      const userInfo = await fetchUserInfo();
+      setUser(userInfo);
+      localStorage.setItem("user", JSON.stringify(userInfo));
+
+      navigate("/food-list");
+    },
+  });
+
+  const onSubmit: SubmitHandler<LoginFormInputs> = async (data) => {
+    loginMutation(data);
   };
 
   return (
