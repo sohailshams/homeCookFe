@@ -45,7 +45,7 @@ export const AuthProvider = ({ children }: ContextChildren) => {
         setUser(null);
         localStorage.removeItem("user");
         navigate("/", {
-          state: { message: "Session expired. Please log in again." },
+          state: { message: "Session expired. Please login again." },
         });
       }
     };
@@ -61,9 +61,11 @@ export const AuthProvider = ({ children }: ContextChildren) => {
         if (error.response?.status === 401) {
           localStorage.removeItem("user");
           navigate("/", {
-            state: { message: "Session expired. Please log in again." },
+            state: { message: "Session expired. Please login again." },
           });
         }
+
+        return Promise.reject(error);
       }
     );
 
