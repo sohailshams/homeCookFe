@@ -4,9 +4,12 @@ import Login from "./components/ui/Login";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "sonner";
 import { useAuth } from "./contexts/AuthContext";
+import Spinner from "./components/Spinner";
 
 function App() {
   const { user } = useAuth();
+  if (user === undefined) return <Spinner />;
+
   return (
     <>
       <Toaster position="bottom-left" />
