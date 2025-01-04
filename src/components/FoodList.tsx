@@ -1,18 +1,9 @@
 import { useAuth } from "@/contexts/AuthContext";
-import axios from "axios";
 import { X } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import Spinner from "./Spinner";
-
-const fetchFoodList = async () => {
-  const parameters = { useCookies: true };
-  const response = await axios.get("https://localhost:7145/api/food", {
-    withCredentials: true,
-    params: parameters,
-  });
-  return response.data;
-};
+import { fetchFoodList } from "@/api/api";
 
 const FoodList: React.FC = () => {
   const { user } = useAuth();

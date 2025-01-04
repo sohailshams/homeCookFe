@@ -18,3 +18,12 @@ export const fetchUserInfo = async () => {
     withCredentials: true,
   });
 };
+
+export const fetchFoodList = async () => {
+  const parameters = { useCookies: true };
+  const response = await homeCookApi.get("/food", {
+    withCredentials: true,
+    params: parameters,
+  });
+  return response.data;
+};
