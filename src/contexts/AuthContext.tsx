@@ -1,3 +1,4 @@
+import { fetchUserInfo } from "@/api/api";
 import axios from "axios";
 import {
   createContext,
@@ -36,9 +37,7 @@ export const AuthProvider = ({ children }: ContextChildren) => {
         return;
       }
       try {
-        const response = await axios.get("https://localhost:7145/api/user", {
-          withCredentials: true,
-        });
+        const response = await fetchUserInfo();
         setUser(response.data);
         localStorage.setItem("user", JSON.stringify(response.data));
       } catch (error) {

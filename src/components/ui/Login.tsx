@@ -6,7 +6,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "sonner";
 import { X } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
-import { loginUser } from "@/api/api";
+import { fetchUserInfo, loginUser } from "@/api/api";
 
 export type LoginFormInputs = {
   email: string;
@@ -18,11 +18,11 @@ const Login: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const fetchUserInfo = async () => {
-    return await axios.get("https://localhost:7145/api/user", {
-      withCredentials: true,
-    });
-  };
+  // const fetchUserInfo = async () => {
+  //   return await axios.get("https://localhost:7145/api/user", {
+  //     withCredentials: true,
+  //   });
+  // };
 
   useEffect(() => {
     if (location.state?.message) {
@@ -46,7 +46,6 @@ const Login: React.FC = () => {
   const { mutate: loginMutation } = useMutation({
     mutationFn: loginUser,
     onError: () => {
-      console.log("onError called");
       setUser(null);
       localStorage.removeItem("user");
       toast.error("Failed to login, please try again", {

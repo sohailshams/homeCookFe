@@ -12,3 +12,9 @@ export const loginUser = async (data: LoginFormInputs) => {
     params: parameters,
   });
 };
+
+export const fetchUserInfo = async () => {
+  return await homeCookApi.get("/user", {
+    withCredentials: true,
+  });
+};
