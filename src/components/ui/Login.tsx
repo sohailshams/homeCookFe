@@ -1,6 +1,5 @@
 import React, { useEffect } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
-import axios from "axios";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "sonner";
@@ -17,12 +16,6 @@ const Login: React.FC = () => {
   const { setUser } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-
-  // const fetchUserInfo = async () => {
-  //   return await axios.get("https://localhost:7145/api/user", {
-  //     withCredentials: true,
-  //   });
-  // };
 
   useEffect(() => {
     if (location.state?.message) {
