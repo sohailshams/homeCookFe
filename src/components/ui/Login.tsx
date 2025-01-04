@@ -6,8 +6,9 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "sonner";
 import { X } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
+import { loginUser } from "@/api/api";
 
-type LoginFormInputs = {
+export type LoginFormInputs = {
   email: string;
   password: string;
 };
@@ -16,14 +17,6 @@ const Login: React.FC = () => {
   const { setUser } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-
-  const loginUser = async (data: LoginFormInputs) => {
-    const parameters = { useCookies: true };
-    return await axios.post("https://localhost:7145/api/login", data, {
-      withCredentials: true,
-      params: parameters,
-    });
-  };
 
   const fetchUserInfo = async () => {
     return await axios.get("https://localhost:7145/api/user", {
@@ -53,6 +46,7 @@ const Login: React.FC = () => {
   const { mutate: loginMutation } = useMutation({
     mutationFn: loginUser,
     onError: () => {
+      console.log("onError called");
       setUser(null);
       localStorage.removeItem("user");
       toast.error("Failed to login, please try again", {
