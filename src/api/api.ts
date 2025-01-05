@@ -27,3 +27,17 @@ export const fetchFoodList = async () => {
   });
   return response.data;
 };
+
+export const logoutUser = async () => {
+  const parameters = { useCookies: true };
+  const response = await homeCookApi.post(
+    "/logout",
+    {},
+    {
+      withCredentials: true,
+      params: parameters,
+    }
+  );
+  console.log("inside logout api", response);
+  return response.data;
+};
