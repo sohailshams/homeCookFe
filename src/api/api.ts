@@ -3,40 +3,24 @@ import axios from "axios";
 
 const homeCookApi = axios.create({
   baseURL: "https://localhost:7145/api",
+  withCredentials: true,
+  params: { useCookies: true },
 });
 
 export const loginUser = async (data: LoginFormInputs) => {
-  const parameters = { useCookies: true };
-  return await homeCookApi.post("/login", data, {
-    withCredentials: true,
-    params: parameters,
-  });
+  return await homeCookApi.post("/login", data);
 };
 
 export const fetchUserInfo = async () => {
-  return await homeCookApi.get("/user", {
-    withCredentials: true,
-  });
+  return await homeCookApi.get("/user");
 };
 
 export const fetchFoodList = async () => {
-  const parameters = { useCookies: true };
-  const response = await homeCookApi.get("/food", {
-    withCredentials: true,
-    params: parameters,
-  });
+  const response = await homeCookApi.get("/food");
   return response.data;
 };
 
 export const logoutUser = async () => {
-  const parameters = { useCookies: true };
-  const response = await homeCookApi.post(
-    "/logout",
-    {},
-    {
-      withCredentials: true,
-      params: parameters,
-    }
-  );
+  const response = await homeCookApi.post("/logout", {});
   return response.data;
 };
