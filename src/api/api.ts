@@ -38,6 +38,5 @@ export const logoutUser = async () => {
       params: parameters,
     }
   );
-  console.log("inside logout api", response);
   return response.data;
 };
