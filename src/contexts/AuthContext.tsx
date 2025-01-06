@@ -10,9 +10,16 @@ import {
 
 import { useNavigate } from "react-router-dom";
 
+type User = {
+  id: number;
+  userName: string;
+  userEmail: string | null;
+  isProfileComplete: boolean;
+};
+
 type AuthContextType = {
-  user: any;
-  setUser: React.Dispatch<React.SetStateAction<any>>;
+  user: User | null;
+  setUser: React.Dispatch<React.SetStateAction<User | null>>;
 };
 type ContextChildren = {
   children: React.ReactNode;
