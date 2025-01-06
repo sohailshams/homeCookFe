@@ -5,6 +5,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "sonner";
 import { useAuth } from "./contexts/AuthContext";
 import Spinner from "./components/Spinner";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   const { user } = useAuth();
@@ -16,11 +17,15 @@ function App() {
       <Routes>
         <Route
           path="/"
-          element={!user ? <Login /> : <Navigate to="/food-list" />}
+          element={user ? <Navigate to={"/food-list"} /> : <Login />}
         />
         <Route
           path="/food-list"
-          element={user ? <FoodList /> : <Navigate to="/" />}
+          element={
+            <ProtectedRoute>
+              <FoodList />
+            </ProtectedRoute>
+          }
         />
       </Routes>
     </>
