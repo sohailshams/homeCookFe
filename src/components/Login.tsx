@@ -54,7 +54,7 @@ const Login: React.FC = () => {
 
     onSuccess: async () => {
       const userInfo = await fetchUserInfo();
-      setUser(userInfo);
+      setUser(userInfo.data);
       localStorage.setItem("user", JSON.stringify(userInfo));
 
       navigate("/food-list");
