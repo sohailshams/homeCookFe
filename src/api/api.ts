@@ -1,4 +1,4 @@
-import { LoginFormInputs } from "@/components/ui/Login";
+import { LoginFormInputs } from "@/components/Login";
 import axios from "axios";
 
 const homeCookApi = axios.create({

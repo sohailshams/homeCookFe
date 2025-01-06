@@ -1,6 +1,6 @@
 import "./App.css";
 import FoodList from "./components/FoodList";
-import Login from "./components/ui/Login";
+import Login from "./components/Login";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "sonner";
 import { useAuth } from "./contexts/AuthContext";
