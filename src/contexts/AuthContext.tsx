@@ -10,11 +10,12 @@ import {
 
 import { useNavigate } from "react-router-dom";
 
-type User = {
+export type User = {
   id: number;
   userName: string;
   userEmail: string | null;
   isProfileComplete: boolean;
+  userImageUrl?: string;
 };
 
 type AuthContextType = {
