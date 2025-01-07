@@ -6,6 +6,7 @@ import { Toaster } from "sonner";
 import { useAuth } from "./contexts/AuthContext";
 import Spinner from "./components/Spinner";
 import ProtectedRoute from "./components/ProtectedRoute";
+import Layout from "./components/Layout";
 
 function App() {
   const { user } = useAuth();
@@ -16,17 +17,19 @@ function App() {
       <Toaster position="bottom-left" />
       <Routes>
         <Route
-          path="/"
-          element={user ? <Navigate to={"/food-list"} /> : <Login />}
+          index
+          element={!user ? <Login /> : <Navigate to={"/food-list"} />}
         />
-        <Route
-          path="/food-list"
-          element={
-            <ProtectedRoute>
-              <FoodList />
-            </ProtectedRoute>
-          }
-        />
+        <Route element={<Layout />}>
+          <Route
+            path="/food-list"
+            element={
+              <ProtectedRoute>
+                <FoodList />
+              </ProtectedRoute>
+            }
+          />
+        </Route>
       </Routes>
     </>
   );
