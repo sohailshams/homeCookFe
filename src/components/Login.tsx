@@ -66,8 +66,14 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="w-full max-w-md p-6 bg-white rounded-lg shadow-md">
+    <div className="grid md:grid-cols-2 place-items-center min-h-screen bg-white">
+      <div className="place-items-center w-full pl-6">
+        <h1 className="font-bold text-2xl md:font-semibold md:text-5xl py-4 text-gray-700">
+          Feeling Hungry.
+        </h1>
+        <h4 className="md:text-2xl font-bold text-gray-700">Eat Now!</h4>
+      </div>
+      <div className="w-full max-w-md p-6 rounded-lg shadow-lg">
         <h2 className="mb-4 text-2xl font-bold text-center text-gray-700">
           Login
         </h2>
