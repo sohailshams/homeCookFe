@@ -1,5 +1,4 @@
-import { SearchIcon, X } from "lucide-react";
-import { Button } from "./ui/button";
+import { SearchIcon, X, AlignJustify } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -33,7 +32,6 @@ const Navbar: React.FC = () => {
     },
 
     onSuccess: async () => {
-      console.log("onSuccess");
       setUser(null);
       localStorage.removeItem("user");
 
@@ -42,53 +40,59 @@ const Navbar: React.FC = () => {
   });
 
   return (
-    <div className="flex items-center p-2 max-w-6xl mx-auto">
-      <div className="flex items-center space-x-4 cursor-pointer">
-        <Avatar>
-          {/* TODO - remember to upload logo image on a website and reference the url here */}
-          <AvatarImage onClick={() => navigate("/food-list")} src={logo} />
-          <AvatarFallback>HC</AvatarFallback>
-        </Avatar>
-      </div>
-      <div className="flex-1">
-        <form className="flex items-center space-x-1 bg-gray-100 p-2 rounded-md flex-1 mx-2 max-w-96">
-          <SearchIcon className="h-4 text-gray-600" />
-          <input
-            className="bg-transparent flex-1 outline-none"
-            type="text"
-            placeholder="Search"
-          />
-        </form>
-      </div>
+    <div className=" py-6 my-2 border-b-[1px] border-gray-300">
+      <div className="flex items-center max-w-[80%] mx-auto ">
+        <div className="cursor-pointer">
+          <Avatar>
+            {/* TODO - remember to upload logo image on a website and reference the url here */}
+            <AvatarImage
+              className="bg-transparent"
+              onClick={() => navigate("/food-list")}
+              src={logo}
+            />
+            <AvatarFallback>HC</AvatarFallback>
+          </Avatar>
+        </div>
+        <div className="flex-1">
+          <form className="flex items-center mx-auto space-x-1 bg-white p-4 border-[1px] border-gray-300 shadow-md rounded-full flex-1 max-w-[80%]">
+            <SearchIcon className="h-4 text-gray-600" />
+            <input
+              className="bg-transparent flex-1 outline-none"
+              type="text"
+              placeholder="Search"
+            />
+          </form>
+        </div>
 
-      <div className="flex items-center space-x-4 px-6">
-        <DropdownMenu>
-          <DropdownMenuTrigger className="focus:outline-none">
-            {<UserAvatar user={user} />}
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuSeparator />
-            {user ? (
-              <DropdownMenuItem
-                className="cursor-pointer"
-                onClick={() => {
-                  logoutMutation();
-                }}
-              >
-                Logout
-              </DropdownMenuItem>
-            ) : (
+        <div className="flex items-center space-x-2 border-[1px] border-gray-300 p-2  rounded-full shadow-md">
+          <DropdownMenu>
+            <DropdownMenuTrigger className="focus:outline-none flex items-center space-x-2">
+              {<UserAvatar user={user} />}
+              <AlignJustify className="text-gray-500 " />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="mt-2">
+              <DropdownMenuSeparator />
+              {user ? (
+                <DropdownMenuItem
+                  className="cursor-pointer"
+                  onClick={() => {
+                    logoutMutation();
+                  }}
+                >
+                  Logout
+                </DropdownMenuItem>
+              ) : (
+                <DropdownMenuItem className="cursor-pointer">
+                  Login
+                </DropdownMenuItem>
+              )}
+
               <DropdownMenuItem className="cursor-pointer">
-                Login
+                Register
               </DropdownMenuItem>
-            )}
-
-            <DropdownMenuItem className="cursor-pointer">
-              Register
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>{" "}
-        <Button asChild variant="outline"></Button>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
     </div>
   );
