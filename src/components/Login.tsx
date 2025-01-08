@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { X } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { fetchUserInfo, loginUser } from "@/api/api";
+import Register from "./Register";
 
 export type LoginFormInputs = {
   email: string;
@@ -71,7 +72,9 @@ const Login: React.FC = () => {
         <h1 className="font-bold text-2xl md:font-semibold md:text-5xl py-4 text-gray-700">
           Feeling Hungry.
         </h1>
-        <h4 className="md:text-2xl font-bold text-gray-700">Eat Now!</h4>
+        <h4 className="md:text-2xl font-bold text-gray-700">
+          Eat Authentic Now!
+        </h4>
       </div>
       <div className="w-full max-w-md p-6 rounded-lg shadow-lg">
         <h2 className="mb-4 text-2xl font-bold text-center text-gray-700">
@@ -121,7 +124,10 @@ const Login: React.FC = () => {
               </p>
             )}
           </div>
-
+          <p className="my-4">
+            Don't have an account ?
+            <Register />
+          </p>
           <button
             type="submit"
             className="w-full px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
