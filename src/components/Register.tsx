@@ -14,6 +14,7 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { registerUser } from "@/api/api";
+import { AxiosError } from "axios";
 
 export const schema = zod.object({
   email: zod
@@ -58,8 +59,15 @@ const Register: React.FC = () => {
 
   const { mutate: registerMutation, status } = useMutation({
     mutationFn: registerUser,
-    onError: () => {
-      setErrorMessage("Failed to register, please try again");
+    onError: (err: AxiosError) => {
+      if (err.response?.status === 400) {
+        const errorData = err.response.data as {
+          errors: { DuplicateUserName: string[] };
+        };
+        setErrorMessage(errorData.errors.DuplicateUserName[0]);
+      } else {
+        setErrorMessage("Failed to register, please try again.");
+      }
       setDialogOpen(true);
     },
 
@@ -121,7 +129,6 @@ const Register: React.FC = () => {
                   {errors.password?.message && (
                     <p className="text-red-500">{errors.password?.message}</p>
                   )}
-                  {/* <input type="submit" /> */}
                 </form>
               </div>
             </AlertDialogDescription>
