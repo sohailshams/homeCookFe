@@ -11,6 +11,10 @@ export const loginUser = async (data: LoginFormInputs) => {
   return await homeCookApi.post("/login", data);
 };
 
+export const registerUser = async (data: LoginFormInputs) => {
+  return await homeCookApi.post("/register", data);
+};
+
 export const fetchUserInfo = async () => {
   return await homeCookApi.get("/user");
 };
