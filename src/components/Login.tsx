@@ -124,10 +124,6 @@ const Login: React.FC = () => {
               </p>
             )}
           </div>
-          <p className="my-4">
-            Don't have an account ?
-            <Register />
-          </p>
           <button
             type="submit"
             className="w-full px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
@@ -135,6 +131,10 @@ const Login: React.FC = () => {
             Login
           </button>
         </form>
+        <div className="mt-2">
+          Don't have an account ?
+          <Register />
+        </div>
       </div>
     </div>
   );
