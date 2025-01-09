@@ -39,9 +39,7 @@ export const AuthProvider = ({ children }: ContextChildren) => {
   useEffect(() => {
     const fetchUser = async () => {
       if (user === null) {
-        navigate("/", {
-          state: { message: "Please login." },
-        });
+        navigate("/");
         return;
       }
       try {
