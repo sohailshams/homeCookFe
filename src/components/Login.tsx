@@ -7,11 +7,7 @@ import { X } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { fetchUserInfo, loginUser } from "@/api/api";
 import Register from "./Register";
-
-export type LoginFormInputs = {
-  email: string;
-  password: string;
-};
+import { LoginRegisterFormInputs } from "./Types/Types";
 
 const Login: React.FC = () => {
   const { setUser } = useAuth();
@@ -35,7 +31,7 @@ const Login: React.FC = () => {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<LoginFormInputs>();
+  } = useForm<LoginRegisterFormInputs>();
 
   const { mutate: loginMutation } = useMutation({
     mutationFn: loginUser,
@@ -62,7 +58,7 @@ const Login: React.FC = () => {
     },
   });
 
-  const onSubmit: SubmitHandler<LoginFormInputs> = async (data) => {
+  const onSubmit: SubmitHandler<LoginRegisterFormInputs> = async (data) => {
     loginMutation(data);
   };
 

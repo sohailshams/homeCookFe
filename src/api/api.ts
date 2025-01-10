@@ -1,4 +1,4 @@
-import { LoginFormInputs } from "@/components/Login";
+import { LoginRegisterFormInputs } from "@/components/Types/Types";
 import axios from "axios";
 
 const homeCookApi = axios.create({
@@ -7,11 +7,11 @@ const homeCookApi = axios.create({
   params: { useCookies: true },
 });
 
-export const loginUser = async (data: LoginFormInputs) => {
+export const loginUser = async (data: LoginRegisterFormInputs) => {
   return await homeCookApi.post("/login", data);
 };
 
-export const registerUser = async (data: LoginFormInputs) => {
+export const registerUser = async (data: LoginRegisterFormInputs) => {
   return await homeCookApi.post("/register", data);
 };
 
