@@ -1,15 +1,10 @@
-import { useAuth } from "@/contexts/AuthContext";
 import { X } from "lucide-react";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import Spinner from "./Spinner";
 import { fetchFoodList, logoutUser } from "@/api/api";
-import { Button } from "./ui/button";
-import { useNavigate } from "react-router-dom";
 
 const FoodList: React.FC = () => {
-  const { user, setUser } = useAuth();
-  const navigate = useNavigate();
   const {
     data: food,
     isLoading,
@@ -18,9 +13,6 @@ const FoodList: React.FC = () => {
     queryFn: () => fetchFoodList(),
     queryKey: ["foodList"],
   });
-
-  console.log("food", food);
-  console.log("user", user);
 
   if (isError) {
     toast.error("Error fetching food list from database.", {
@@ -33,40 +25,11 @@ const FoodList: React.FC = () => {
     });
   }
 
-  const { mutate: logoutMutation } = useMutation({
-    mutationFn: logoutUser,
-    onError: () => {
-      toast.error("Something went wrong, please try again to logout.", {
-        duration: Infinity,
-        action: {
-          label: <X />,
-          onClick: () => toast.dismiss(),
-        },
-        id: "logout-fail-toast",
-      });
-    },
-
-    onSuccess: async () => {
-      console.log("onSuccess");
-      setUser(null);
-      localStorage.removeItem("user");
-
-      navigate("/");
-    },
-  });
-
   if (isLoading) return <Spinner />;
 
   return (
     <div>
       <h1>Food List</h1>
-      <Button
-        onClick={() => {
-          logoutMutation();
-        }}
-      >
-        Logout
-      </Button>
       <ul>
         {food?.map((item: { id: number; name: string }) => (
           <li key={item.id}>{item.name}</li>
