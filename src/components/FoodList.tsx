@@ -2,7 +2,7 @@ import { X } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import Spinner from "./Spinner";
-import { fetchFoodList, logoutUser } from "@/api/api";
+import { fetchFoodList } from "@/api/api";
 
 const FoodList: React.FC = () => {
   const {
