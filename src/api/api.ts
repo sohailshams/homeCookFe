@@ -28,3 +28,8 @@ export const logoutUser = async () => {
   const response = await homeCookApi.post("/logout", {});
   return response.data;
 };
+
+export const fetchCategories = async () => {
+  const response = await homeCookApi.get("/category");
+  return response.data;
+};

@@ -5,33 +5,47 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import { useState } from "react";
 import { Card, CardContent } from "./ui/card";
+import { useQuery } from "@tanstack/react-query";
+import { fetchCategories } from "@/api/api";
+import { Category } from "./Types/Types";
+import { toast } from "sonner";
+import { X } from "lucide-react";
 
-const Categories = () => {
-  const [categories, setCategories] = useState([
-    "Asian",
-    "American",
-    "Italian",
-    "Mexican",
-    "Indian",
-    "Chinese",
-    "Japanese",
-    "Korean",
-    "Thai",
-    "Vietnamese",
-  ]);
+const Categories: React.FC = () => {
+  const {
+    data: categories,
+    isError,
+    isLoading,
+  } = useQuery({
+    queryFn: () => fetchCategories(),
+    queryKey: ["categories"],
+  });
+
+  if (isError) {
+    toast.error("Error fetching categories from database.", {
+      duration: Infinity,
+      action: {
+        label: <X />,
+        onClick: () => toast.dismiss(),
+      },
+      id: "categories-fetching-error-toast",
+    });
+  }
+
+  if (isError || isLoading) return null;
+
   return (
     <Carousel className="w-[90%]  mx-auto pt-2  px-4">
       <CarouselContent className="-ml-1">
-        {categories.map((category, index) => (
+        {categories?.map((category: Category, index: number) => (
           <CarouselItem
             key={index}
-            className="pl-1 sm:basis-1/3 md:basis-1/4 lg:basis-1/6"
+            className="pl-1 max-[400px]:basis-[50%] max-[550px]:basis-[35%] max-sm:basis-[25%] sm:basis-[20%] md:basis-[15%] lg:basis-[10%]"
           >
-            <Card className="p-1 shadow-lg max-w-44 max-h-44 mx-auto border-gray-400">
-              <CardContent className="flex aspect-square items-center justify-center p-2">
-                <span className="text-sm">{category}</span>
+            <Card className="p-1 shadow-lg max-w-28 max-h-24 mx-auto border-gray-400">
+              <CardContent className="flex aspect-square items-center justify-center pt-2">
+                <span className="text-sm text-center">{category.name}</span>
               </CardContent>
             </Card>
           </CarouselItem>
