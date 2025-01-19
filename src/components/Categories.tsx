@@ -43,7 +43,7 @@ const Categories: React.FC = () => {
             key={index}
             className="pl-1 max-[400px]:basis-[50%] max-[550px]:basis-[35%] max-sm:basis-[25%] sm:basis-[20%] md:basis-[15%] lg:basis-[10%]"
           >
-            <Card className="p-1 shadow-lg max-w-28 max-h-24 mx-auto border-gray-400">
+            <Card className="p-1 shadow-lg max-w-28 max-h-24 mx-auto border-gray-400 cursor-pointer">
               <CardContent className="flex aspect-square items-center justify-center pt-2">
                 <span className="text-sm text-center">{category.name}</span>
               </CardContent>
