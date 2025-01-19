@@ -3,6 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import Spinner from "./Spinner";
 import { fetchFoodList } from "@/api/api";
+import { Food } from "./Types/Types";
+import FoodCard from "./FoodCard";
 
 const FoodList: React.FC = () => {
   const {
@@ -29,12 +31,11 @@ const FoodList: React.FC = () => {
 
   return (
     <div>
-      <h1>Food List</h1>
-      <ul>
-        {food?.map((item: { id: number; name: string }) => (
-          <li key={item.id}>{item.name}</li>
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 my-4 max-w-[90%] mx-auto">
+        {food?.map((food: Food) => (
+          <FoodCard key={food.id} food={food} />
         ))}
-      </ul>
+      </div>
     </div>
   );
 };
