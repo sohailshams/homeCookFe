@@ -7,7 +7,7 @@ interface FoodCardProps {
 
 const FoodCard: React.FC<FoodCardProps> = ({ food }) => {
   return (
-    <div className="bg-white shadow-lg rounded-lg overflow-hidden max-w-64">
+    <div className="bg-white shadow-lg rounded-lg overflow-hidden max-w-64 max-[375px]:mx-auto">
       <img
         src={food.foodImageUrls[0]}
         alt={food.name}

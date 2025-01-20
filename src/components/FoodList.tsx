@@ -31,7 +31,7 @@ const FoodList: React.FC = () => {
 
   return (
     <div>
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 my-4 max-w-[90%] mx-auto">
+      <div className="grid max-[375px]:grid-cols-1 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 my-4 max-w-[90%] mx-auto">
         {food?.map((food: Food) => (
           <FoodCard key={food.id} food={food} />
         ))}
