@@ -33,3 +33,8 @@ export const fetchCategories = async () => {
   const response = await homeCookApi.get("/category");
   return response.data;
 };
+
+export const fetchFoodByCategory = async (categoryId: number) => {
+  const response = await homeCookApi.get(`/food/food-category/${categoryId}`);
+  return response.data;
+};
