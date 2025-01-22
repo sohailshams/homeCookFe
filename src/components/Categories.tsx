@@ -12,7 +12,11 @@ import { Category } from "./Types/Types";
 import { toast } from "sonner";
 import { X } from "lucide-react";
 
-const Categories: React.FC = () => {
+interface CategiruesProps {
+  setCategoryId: (id: number) => void;
+}
+
+const Categories: React.FC<CategiruesProps> = ({ setCategoryId }) => {
   const {
     data: categories,
     isError,
@@ -40,6 +44,7 @@ const Categories: React.FC = () => {
       <CarouselContent className="-ml-1">
         {categories?.map((category: Category, index: number) => (
           <CarouselItem
+            onClick={() => setCategoryId(category.id)}
             key={index}
             className="pl-1 max-[400px]:basis-[50%] max-[550px]:basis-[35%] max-sm:basis-[25%] sm:basis-[20%] md:basis-[15%] lg:basis-[10%]"
           >
