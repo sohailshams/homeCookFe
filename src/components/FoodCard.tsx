@@ -1,5 +1,6 @@
 import { formatDate } from "@/utils/utils";
 import { Food } from "./Types/Types";
+import { Link } from "react-router-dom";
 
 interface FoodCardProps {
   food: Food;
@@ -7,7 +8,10 @@ interface FoodCardProps {
 
 const FoodCard: React.FC<FoodCardProps> = ({ food }) => {
   return (
-    <div className="bg-white shadow-lg rounded-lg overflow-hidden max-w-64 max-[375px]:mx-auto">
+    <Link
+      to={`/food/${food.id}`}
+      className="bg-white shadow-lg rounded-lg overflow-hidden max-w-64 max-[375px]:mx-auto cursor-pointer"
+    >
       <img
         src={food.foodImageUrls[0]}
         alt={food.name}
@@ -21,7 +25,7 @@ const FoodCard: React.FC<FoodCardProps> = ({ food }) => {
           <p>Max Order: {food.quantityAvailable} Portions</p>
         </div>
       </div>
-    </div>
+    </Link>
   );
 };
 export default FoodCard;
