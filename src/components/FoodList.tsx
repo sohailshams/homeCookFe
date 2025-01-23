@@ -35,10 +35,12 @@ const FoodList: React.FC = () => {
   if (isLoading) return <Spinner />;
 
   return (
-    <div>
-      <Categories setCategoryId={setCategoryId} />
+    <>
+      <div className="sticky top-[105px] z-50 bg-white">
+        <Categories setCategoryId={setCategoryId} />
+      </div>
       {food.length > 0 ? (
-        <div className="grid max-[375px]:grid-cols-1 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 my-4 max-w-[90%] mx-auto">
+        <div className="grid max-[375px]:grid-cols-1 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 my-6 max-w-[90%] mx-auto">
           {food?.map((food: Food) => (
             <FoodCard key={food.id} food={food} />
           ))}
@@ -51,7 +53,7 @@ const FoodList: React.FC = () => {
           </AlertDescription>
         </Alert>
       )}
-    </div>
+    </>
   );
 };
 

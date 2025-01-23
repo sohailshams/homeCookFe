@@ -40,7 +40,7 @@ const Categories: React.FC<CategiruesProps> = ({ setCategoryId }) => {
   if (isError || isLoading) return null;
 
   return (
-    <Carousel className="w-[90%]  mx-auto pt-2  px-4">
+    <Carousel className="w-[90%]  mx-auto pt-2 px-4">
       <CarouselContent className="-ml-1">
         {categories?.map((category: Category, index: number) => (
           <CarouselItem
