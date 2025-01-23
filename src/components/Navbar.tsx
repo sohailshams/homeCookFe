@@ -40,7 +40,7 @@ const Navbar: React.FC = () => {
   });
 
   return (
-    <div className=" py-6 my-2 border-b-[1px] border-gray-300">
+    <div className=" py-6 my-2 border-b-[1px] border-gray-300 sticky top-0 z-50 bg-white">
       <div className="flex items-center max-w-[80%] mx-auto ">
         <div className="cursor-pointer">
           <Avatar>
