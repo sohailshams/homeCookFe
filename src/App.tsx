@@ -7,6 +7,7 @@ import { useAuth } from "./contexts/AuthContext";
 import Spinner from "./components/Spinner";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Layout from "./components/Layout";
+import FoodDetail from "./components/FoodDetail";
 
 function App() {
   const { user } = useAuth();
@@ -26,6 +27,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <FoodList />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/food/:foodId"
+            element={
+              <ProtectedRoute>
+                <FoodDetail />
               </ProtectedRoute>
             }
           />
