@@ -38,3 +38,8 @@ export const fetchFoodByCategory = async (categoryId: number) => {
   const response = await homeCookApi.get(`/food/food-category/${categoryId}`);
   return response.data;
 };
+
+export const fetchFoodDetail = async (foodId: string | undefined) => {
+  const response = await homeCookApi.get(`/food/${foodId}`);
+  return response.data;
+};
