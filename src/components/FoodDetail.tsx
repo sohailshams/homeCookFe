@@ -44,8 +44,8 @@ const FoodDetail: React.FC = () => {
           {food.foodImageUrls.map((img: string, index: number) => (
             <CarouselItem key={index}>
               <div className="p-1">
-                <CardContent>
-                  <div className="relative border-2 w-full min-h-96 max-h-full aspect-[16/9] overflow-hidden">
+                <CardContent className="p-0">
+                  <div className="relative w-full min-h-96 max-h-full aspect-[16/9] overflow-hidden">
                     <img
                       src={img}
                       alt={food.name}
