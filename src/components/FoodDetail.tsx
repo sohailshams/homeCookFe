@@ -1,6 +1,6 @@
 import { fetchFoodDetail } from "@/api/api";
 import { useQuery } from "@tanstack/react-query";
-import { X } from "lucide-react";
+import { ChevronsDownUp, X } from "lucide-react";
 import { useParams } from "react-router-dom";
 import { toast } from "sonner";
 import Spinner from "./Spinner";
@@ -12,6 +12,11 @@ import {
   CarouselPrevious,
 } from "./ui/carousel";
 import { CardContent } from "./ui/card";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "./ui/collapsible";
 
 const FoodDetail: React.FC = () => {
   const { foodId } = useParams<{ foodId: string }>();
@@ -23,7 +28,6 @@ const FoodDetail: React.FC = () => {
     queryFn: () => fetchFoodDetail(foodId),
     queryKey: [foodId],
   });
-  console.log("food", food);
 
   if (isError) {
     toast.error("Error fetching food detail from database.", {
@@ -60,7 +64,24 @@ const FoodDetail: React.FC = () => {
           ))}
         </CarouselContent>
       </Carousel>
-      <div className="border-2 border-black ml-4">Order</div>
+      <div className="ml-2">
+        <h1 className="text-2xl font-bold">{food.name}</h1>
+        <p>{food.description}</p>
+        <Collapsible className="my-2">
+          <CollapsibleTrigger className="flex items-center justify-between">
+            <span className="font-semibold text-lg">Ingredients</span>
+            <ChevronsDownUp />
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            {food.ingredients.map((ingredient: string, index: number) => (
+              <p key={index}>{ingredient}</p>
+            ))}
+          </CollapsibleContent>
+        </Collapsible>
+        <p className="text-lg font-semibold">£{food.price}</p>
+        <p>Available on: {food.availableDate}</p>
+        <p>Max Order: {food.quantityAvailable} Portions</p>
+      </div>
     </div>
   );
 };
