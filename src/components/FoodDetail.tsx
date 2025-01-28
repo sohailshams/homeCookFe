@@ -74,7 +74,9 @@ const FoodDetail: React.FC = () => {
           </CollapsibleTrigger>
           <CollapsibleContent>
             {food.ingredients.map((ingredient: string, index: number) => (
-              <p key={index}>{ingredient}</p>
+              <p key={index} className="my-2 py-1 pl-1 max-w-56 shadow-lg">
+                {ingredient}
+              </p>
             ))}
           </CollapsibleContent>
         </Collapsible>
