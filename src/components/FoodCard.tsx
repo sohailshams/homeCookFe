@@ -17,10 +17,10 @@ const FoodCard: React.FC<FoodCardProps> = ({ food }) => {
         alt={food.name}
         className="w-full h-56 object-cover object-center"
       />
-      <div className="p-4">
-        <h1 className="text-gray-900 font-medium text-lg">{food.name}</h1>
+      <div className="p-4 text-gray-700">
+        <h1 className="font-medium text-lg">{food.name}</h1>
         <div className=" mt-3">
-          <h1 className="text-gray-700 font-bold">£{food.price}</h1>
+          <h1 className="font-bold">£{food.price}</h1>
           <p className="">Available on: {formatDate(food.availableDate)}</p>
           <p>Max Order: {food.quantityAvailable} Portions</p>
         </div>

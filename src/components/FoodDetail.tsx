@@ -64,7 +64,7 @@ const FoodDetail: React.FC = () => {
           ))}
         </CarouselContent>
       </Carousel>
-      <div className="ml-2">
+      <div className="ml-2 text-gray-700 ">
         <h1 className="text-2xl font-bold">{food.name}</h1>
         <p>{food.description}</p>
         <Collapsible className="my-2">
