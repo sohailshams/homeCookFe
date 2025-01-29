@@ -17,6 +17,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "./ui/collapsible";
+import { formatDate } from "@/utils/utils";
 
 const FoodDetail: React.FC = () => {
   const { foodId } = useParams<{ foodId: string }>();
@@ -70,7 +71,7 @@ const FoodDetail: React.FC = () => {
         <Collapsible className="my-2">
           <CollapsibleTrigger className="flex items-center justify-between">
             <span className="font-semibold text-lg">Ingredients</span>
-            <ChevronsDownUp />
+            <ChevronsDownUp className="h-5" />
           </CollapsibleTrigger>
           <CollapsibleContent>
             {food.ingredients.map((ingredient: string, index: number) => (
@@ -80,9 +81,15 @@ const FoodDetail: React.FC = () => {
             ))}
           </CollapsibleContent>
         </Collapsible>
-        <p className="text-lg font-semibold">£{food.price}</p>
-        <p>Available on: {food.availableDate}</p>
-        <p>Max Order: {food.quantityAvailable} Portions</p>
+        <p className="text-lg font-semibold">£{food.price}/portion</p>
+        <p>
+          <span className="font-semibold">Available on:</span>{" "}
+          {formatDate(food.availableDate)}
+        </p>
+        <p>
+          <span className="font-semibold">Max Order:</span>{" "}
+          {food.quantityAvailable} portions
+        </p>
       </div>
     </div>
   );
