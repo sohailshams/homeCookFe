@@ -21,8 +21,14 @@ const FoodCard: React.FC<FoodCardProps> = ({ food }) => {
         <h1 className="font-medium text-lg">{food.name}</h1>
         <div className=" mt-3">
           <h1 className="font-bold">£{food.price}</h1>
-          <p className="">Available on: {formatDate(food.availableDate)}</p>
-          <p>Max Order: {food.quantityAvailable} Portions</p>
+          <p>
+            <span className="font-semibold">Available on:</span>{" "}
+            {formatDate(food.availableDate)}
+          </p>
+          <p>
+            <span className="font-semibold">Max Order:</span>{" "}
+            {food.quantityAvailable}
+          </p>
         </div>
       </div>
     </Link>
