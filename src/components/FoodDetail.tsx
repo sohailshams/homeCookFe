@@ -18,6 +18,7 @@ import {
   CollapsibleTrigger,
 } from "./ui/collapsible";
 import { formatDate } from "@/utils/utils";
+import { Button } from "./ui/button";
 
 const FoodDetail: React.FC = () => {
   const { foodId } = useParams<{ foodId: string }>();
@@ -67,13 +68,13 @@ const FoodDetail: React.FC = () => {
       </Carousel>
       <div className="ml-2 text-gray-700 ">
         <h1 className="text-2xl font-bold">{food.name}</h1>
-        <p>{food.description}</p>
+        <p className="py-1">{food.description}</p>
         <Collapsible className="my-2">
           <CollapsibleTrigger className="flex items-center justify-between">
             <span className="font-semibold text-lg">Ingredients</span>
             <ChevronsDownUp className="h-5" />
           </CollapsibleTrigger>
-          <CollapsibleContent>
+          <CollapsibleContent className="grid grid-cols-2 gap-2">
             {food.ingredients.map((ingredient: string, index: number) => (
               <p key={index} className="my-2 py-1 pl-1 max-w-56 shadow-lg">
                 {ingredient}
@@ -81,15 +82,24 @@ const FoodDetail: React.FC = () => {
             ))}
           </CollapsibleContent>
         </Collapsible>
-        <p className="text-lg font-semibold">£{food.price}/portion</p>
+        <p>
+          <span className="text-lg font-semibold">Price:</span> £{food.price}
+        </p>
         <p>
           <span className="font-semibold">Available on:</span>{" "}
           {formatDate(food.availableDate)}
         </p>
         <p>
           <span className="font-semibold">Max Order:</span>{" "}
-          {food.quantityAvailable} portions
+          {food.quantityAvailable}
         </p>
+        <Button
+          size="lg"
+          variant="outline"
+          className="shadow-lg bg-gray-700 text-white mt-3"
+        >
+          Order
+        </Button>
       </div>
     </div>
   );
