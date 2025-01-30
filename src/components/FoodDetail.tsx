@@ -1,7 +1,7 @@
 import { fetchFoodDetail } from "@/api/api";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronsDownUp, X } from "lucide-react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import Spinner from "./Spinner";
 import {
@@ -19,10 +19,12 @@ import {
 } from "./ui/collapsible";
 import { formatDate } from "@/utils/utils";
 import { Button } from "./ui/button";
-import { useState } from "react";
+import * as zod from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
 
 const FoodDetail: React.FC = () => {
-  const [quantity, setQuantity] = useState(0);
+  const navigate = useNavigate();
   const { foodId } = useParams<{ foodId: string }>();
   const {
     data: food,
@@ -32,6 +34,47 @@ const FoodDetail: React.FC = () => {
     queryFn: () => fetchFoodDetail(foodId),
     queryKey: [foodId],
   });
+
+  const schema = zod.object({
+    quantity: zod.coerce
+      .number({
+        required_error: "Quantity is missing.",
+      })
+      .min(1, { message: "Quantity must be at least 1." })
+      .max(food?.quantityAvailable, {
+        message: `Quantity must be less than ${food?.quantityAvailable}.`,
+      })
+      .int({
+        message: "Please add an integer.",
+      }),
+  });
+
+  type formFields = zod.infer<typeof schema>;
+
+  const resolver = zodResolver(schema);
+
+  const methods = useForm<formFields>({
+    defaultValues: { quantity: 1 },
+    resolver,
+    mode: "onChange",
+  });
+
+  const {
+    register,
+    watch,
+    formState: { errors, isValid },
+  } = methods;
+
+  const handleOrder = () => {
+    if (!isValid) return;
+    navigate("/checkout", {
+      state: {
+        foodId: foodId,
+        quantity: watch("quantity"),
+        price: food?.price,
+      },
+    });
+  };
 
   if (isError) {
     toast.error("Error fetching food detail from database.", {
@@ -87,17 +130,21 @@ const FoodDetail: React.FC = () => {
         <p>
           <span className="text-lg font-semibold">Price:</span> £{food.price}
         </p>
-        <div className="my-2">
+        <form className="my-2">
           <label className="font-semibold">Select Quantity:</label>
           <input
             type="number"
-            value={quantity}
-            min="1"
-            max={food.quantityAvailable}
-            onChange={(e) => setQuantity(Number(e.target.value))}
-            className="border-[1px] border-gray-300 rounded px-2 py-1 w-16 ml-2 outline-none"
+            {...register("quantity")}
+            className={`border-[1px] ${
+              errors.quantity ? "border-red-500" : "border-gray-300"
+            }  rounded px-2 py-1 w-16 ml-2 outline-none`}
           />
-        </div>
+          {errors.quantity && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.quantity.message}
+            </p>
+          )}
+        </form>
         <p>
           <span className="font-semibold">Available on:</span>{" "}
           {formatDate(food.availableDate)}
@@ -106,18 +153,15 @@ const FoodDetail: React.FC = () => {
           <span className="font-semibold">Max Order:</span>{" "}
           {food.quantityAvailable}
         </p>
-        <Link
-          to="/checkout"
-          state={{ foodId: foodId, quantity: quantity, price: food.price }}
+        <Button
+          disabled={!isValid}
+          onClick={handleOrder}
+          size="lg"
+          variant="outline"
+          className="shadow-lg bg-gray-700 text-white mt-3"
         >
-          <Button
-            size="lg"
-            variant="outline"
-            className="shadow-lg bg-gray-700 text-white mt-3"
-          >
-            Order
-          </Button>
-        </Link>
+          Order
+        </Button>
       </div>
     </div>
   );
