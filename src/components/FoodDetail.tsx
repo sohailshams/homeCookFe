@@ -1,7 +1,7 @@
 import { fetchFoodDetail } from "@/api/api";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronsDownUp, X } from "lucide-react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import Spinner from "./Spinner";
 import {
@@ -19,8 +19,10 @@ import {
 } from "./ui/collapsible";
 import { formatDate } from "@/utils/utils";
 import { Button } from "./ui/button";
+import { useState } from "react";
 
 const FoodDetail: React.FC = () => {
+  const [quantity, setQuantity] = useState(0);
   const { foodId } = useParams<{ foodId: string }>();
   const {
     data: food,
@@ -85,6 +87,17 @@ const FoodDetail: React.FC = () => {
         <p>
           <span className="text-lg font-semibold">Price:</span> £{food.price}
         </p>
+        <div className="my-2">
+          <label className="font-semibold">Select Quantity:</label>
+          <input
+            type="number"
+            value={quantity}
+            min="1"
+            max={food.quantityAvailable}
+            onChange={(e) => setQuantity(Number(e.target.value))}
+            className="border-[1px] border-gray-300 rounded px-2 py-1 w-16 ml-2 outline-none"
+          />
+        </div>
         <p>
           <span className="font-semibold">Available on:</span>{" "}
           {formatDate(food.availableDate)}
@@ -93,13 +106,18 @@ const FoodDetail: React.FC = () => {
           <span className="font-semibold">Max Order:</span>{" "}
           {food.quantityAvailable}
         </p>
-        <Button
-          size="lg"
-          variant="outline"
-          className="shadow-lg bg-gray-700 text-white mt-3"
+        <Link
+          to="/checkout"
+          state={{ foodId: foodId, quantity: quantity, price: food.price }}
         >
-          Order
-        </Button>
+          <Button
+            size="lg"
+            variant="outline"
+            className="shadow-lg bg-gray-700 text-white mt-3"
+          >
+            Order
+          </Button>
+        </Link>
       </div>
     </div>
   );
