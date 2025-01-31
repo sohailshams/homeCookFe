@@ -1,7 +1,7 @@
 import { fetchFoodDetail } from "@/api/api";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronsDownUp, X } from "lucide-react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import Spinner from "./Spinner";
 import {
@@ -22,6 +22,7 @@ import { Button } from "./ui/button";
 import * as zod from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { Food } from "./Types/Types";
 
 const FoodDetail: React.FC = () => {
   const navigate = useNavigate();
@@ -30,13 +31,12 @@ const FoodDetail: React.FC = () => {
     data: food,
     isLoading,
     isError,
-  } = useQuery({
+  } = useQuery<Food & { ingredients: string[] }>({
     queryFn: () => fetchFoodDetail(foodId),
     queryKey: [foodId],
   });
 
-  const disabled =
-    food?.quantityAvailable === 0 || food?.quantityAvailable === null;
+  const disabled = (food?.quantityAvailable ?? 0) === 0;
 
   const schema = zod.object({
     quantity: zod.coerce
@@ -44,8 +44,10 @@ const FoodDetail: React.FC = () => {
         required_error: "Quantity is missing.",
       })
       .min(1, { message: "Quantity must be at least 1." })
-      .max(food?.quantityAvailable, {
-        message: `Quantity must be less than ${food?.quantityAvailable}.`,
+      .max(food?.quantityAvailable ?? 0, {
+        message: `Quantity must be less than or equal to ${
+          food?.quantityAvailable ?? 0
+        }.`,
       })
       .int({
         message: "Please add an integer.",
@@ -95,7 +97,7 @@ const FoodDetail: React.FC = () => {
     <div className="my-6 max-w-[90%] mx-auto grid grid-cols-1 md:grid-cols-2 gap-4">
       <Carousel className="w-full">
         <CarouselContent>
-          {food.foodImageUrls.map((img: string, index: number) => (
+          {food?.foodImageUrls.map((img: string, index: number) => (
             <CarouselItem key={index}>
               <div className="p-1">
                 <CardContent className="p-0">
@@ -115,15 +117,15 @@ const FoodDetail: React.FC = () => {
         </CarouselContent>
       </Carousel>
       <div className="ml-2 text-gray-700 ">
-        <h1 className="text-2xl font-bold">{food.name}</h1>
-        <p className="py-1">{food.description}</p>
+        <h1 className="text-2xl font-bold">{food?.name}</h1>
+        <p className="py-1">{food?.description}</p>
         <Collapsible className="my-2">
           <CollapsibleTrigger className="flex items-center justify-between">
             <span className="font-semibold text-lg">Ingredients</span>
             <ChevronsDownUp className="h-5" />
           </CollapsibleTrigger>
           <CollapsibleContent className="grid grid-cols-2 gap-2">
-            {food.ingredients.map((ingredient: string, index: number) => (
+            {food?.ingredients?.map((ingredient: string, index: number) => (
               <p key={index} className="my-2 py-1 pl-1 max-w-56 shadow-lg">
                 {ingredient}
               </p>
@@ -131,9 +133,9 @@ const FoodDetail: React.FC = () => {
           </CollapsibleContent>
         </Collapsible>
         <p>
-          <span className="text-lg font-semibold">Price:</span> £{food.price}
+          <span className="text-lg font-semibold">Price:</span> £{food?.price}
         </p>
-        {food.quantityAvailable > 0 ? (
+        {food && food.quantityAvailable > 0 ? (
           <>
             <form className="my-2">
               <label className="font-semibold">Select Quantity:</label>
@@ -152,11 +154,11 @@ const FoodDetail: React.FC = () => {
             </form>
             <p>
               <span className="font-semibold">Available on:</span>{" "}
-              {formatDate(food.availableDate)}
+              {formatDate(food?.availableDate)}
             </p>
             <p>
               <span className="font-semibold">Max Order:</span>{" "}
-              {food.quantityAvailable}
+              {food?.quantityAvailable}
             </p>
           </>
         ) : (
