@@ -35,6 +35,9 @@ const FoodDetail: React.FC = () => {
     queryKey: [foodId],
   });
 
+  const disabled =
+    food?.quantityAvailable === 0 || food.quantityAvailable === null;
+
   const schema = zod.object({
     quantity: zod.coerce
       .number({
@@ -130,31 +133,37 @@ const FoodDetail: React.FC = () => {
         <p>
           <span className="text-lg font-semibold">Price:</span> £{food.price}
         </p>
-        <form className="my-2">
-          <label className="font-semibold">Select Quantity:</label>
-          <input
-            type="number"
-            {...register("quantity")}
-            className={`border-[1px] ${
-              errors.quantity ? "border-red-500" : "border-gray-300"
-            }  rounded px-2 py-1 w-16 ml-2 outline-none`}
-          />
-          {errors.quantity && (
-            <p className="text-red-500 text-sm mt-1">
-              {errors.quantity.message}
+        {food.quantityAvailable > 0 ? (
+          <>
+            <form className="my-2">
+              <label className="font-semibold">Select Quantity:</label>
+              <input
+                type="number"
+                {...register("quantity")}
+                className={`border-[1px] ${
+                  errors.quantity ? "border-red-500" : "border-gray-300"
+                }  rounded px-2 py-1 w-16 ml-2 outline-none`}
+              />
+              {errors.quantity && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.quantity.message}
+                </p>
+              )}
+            </form>
+            <p>
+              <span className="font-semibold">Available on:</span>{" "}
+              {formatDate(food.availableDate)}
             </p>
-          )}
-        </form>
-        <p>
-          <span className="font-semibold">Available on:</span>{" "}
-          {formatDate(food.availableDate)}
-        </p>
-        <p>
-          <span className="font-semibold">Max Order:</span>{" "}
-          {food.quantityAvailable}
-        </p>
+            <p>
+              <span className="font-semibold">Max Order:</span>{" "}
+              {food.quantityAvailable}
+            </p>
+          </>
+        ) : (
+          <p className="font-semibold">Sold Out</p>
+        )}
         <Button
-          disabled={!isValid}
+          disabled={!isValid || disabled}
           onClick={handleOrder}
           size="lg"
           variant="outline"
