@@ -36,7 +36,7 @@ const FoodDetail: React.FC = () => {
   });
 
   const disabled =
-    food?.quantityAvailable === 0 || food.quantityAvailable === null;
+    food?.quantityAvailable === 0 || food?.quantityAvailable === null;
 
   const schema = zod.object({
     quantity: zod.coerce
