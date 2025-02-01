@@ -8,6 +8,7 @@ import Spinner from "./components/Spinner";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Layout from "./components/Layout";
 import FoodDetail from "./components/FoodDetail";
+import Checkout from "./components/Checkout";
 
 function App() {
   const { user } = useAuth();
@@ -35,6 +36,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <FoodDetail />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/checkout"
+            element={
+              <ProtectedRoute>
+                <Checkout />
               </ProtectedRoute>
             }
           />
