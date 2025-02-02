@@ -78,6 +78,7 @@ const FoodDetail: React.FC = () => {
         quantity: watch("quantity"),
         price: food?.price,
         name: food?.name,
+        quantityAvailable: food?.quantityAvailable,
       },
     });
   };
