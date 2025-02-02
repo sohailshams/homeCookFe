@@ -1,9 +1,10 @@
 import { useAuth } from "@/contexts/AuthContext";
+import { CircleMinus, CirclePlus } from "lucide-react";
 import { useLocation } from "react-router-dom";
 
 const Checkout: React.FC = () => {
   const location = useLocation();
-  const { foodId, quantity, price } = location.state || {};
+  const { foodId, quantity, price, name } = location.state || {};
   const { user } = useAuth();
 
   return (
@@ -114,7 +115,28 @@ const Checkout: React.FC = () => {
           </div>
         </form>
       </div>
-      <div className="w-full lg:w-2/5 flex-none border-2 border-black">03</div>
+      <div className="w-full lg:w-2/5 flex-none">
+        <div className="p-4">
+          <h1 className="text-2xl font-bold">Order Summary</h1>
+          <div className="flex justify-between my-2">
+            <p>{name}</p>
+            <div className="flex items-center space-x-2">
+              <CircleMinus />
+              <input
+                className="w-10 outline-none border-[1px] border-gray-300 [&::-webkit-inner-spin-button]:appearance-none text-center"
+                type="number"
+                value={quantity}
+              />
+              <CirclePlus />
+            </div>
+            <p>£{price}</p>
+          </div>
+          <div className="flex justify-between my-2">
+            <p>Total</p>
+            <p>£{price * quantity}</p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
