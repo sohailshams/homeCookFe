@@ -104,7 +104,7 @@ const Checkout: React.FC = () => {
     setValue("foodQuantity", currentQuantity - 1);
     trigger("foodQuantity");
   };
-  const onSubmit: SubmitHandler<any> = async (data) => {
+  const onSubmit: SubmitHandler<profileFormFields> = async (data) => {
     console.log(data);
   };
   return (
@@ -242,8 +242,13 @@ const Checkout: React.FC = () => {
               )}
             </div>
             <button
+              disabled={!profileIsValid}
               type="submit"
-              className="bg-black text-white p-2 rounded-md"
+              className={`bg-black text-white p-2 rounded-md ${
+                !profileIsValid
+                  ? "cursor-not-allowed bg-gray-500"
+                  : "cursor-default"
+              }`}
             >
               {user?.isProfileComplete
                 ? "Update Profile Info"
