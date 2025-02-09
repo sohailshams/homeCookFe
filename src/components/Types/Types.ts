@@ -19,3 +19,14 @@ export type Food = {
   sellerId: number;
   availableDate: string;
 };
+
+export type UserProfile = {
+  id: number;
+  firstName: string;
+  lastName: string;
+  phoneNumber: string;
+  address: string;
+  city: string;
+  country: string;
+  postCode: string;
+};
