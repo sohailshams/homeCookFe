@@ -43,3 +43,8 @@ export const fetchFoodDetail = async (foodId: string | undefined) => {
   const response = await homeCookApi.get(`/food/${foodId}`);
   return response.data;
 };
+
+export const fetchUserProfile = async (userId: string) => {
+  const response = await homeCookApi.get(`/profile/${userId}`);
+  return response.data;
+};
