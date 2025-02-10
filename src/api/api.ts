@@ -44,7 +44,7 @@ export const fetchFoodDetail = async (foodId: string | undefined) => {
   return response.data;
 };
 
-export const fetchUserProfile = async (userId: string) => {
+export const fetchUserProfile = async (userId: number | undefined) => {
   const response = await homeCookApi.get(`/profile/${userId}`);
   return response.data;
 };
