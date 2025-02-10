@@ -4,6 +4,11 @@ import { useLocation } from "react-router-dom";
 import * as zod from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SubmitHandler, useForm } from "react-hook-form";
+import { UserProfile } from "./Types/Types";
+import { useQuery } from "@tanstack/react-query";
+import { fetchUserProfile } from "@/api/api";
+import { useEffect } from "react";
+import Spinner from "./Spinner";
 
 type LocationState = {
   foodId: string;
@@ -14,11 +19,29 @@ type LocationState = {
 };
 
 const Checkout: React.FC = () => {
+  const { user } = useAuth();
   const location = useLocation();
   const { foodId, quantity, price, name, quantityAvailable } =
     (location.state as LocationState) || {};
-  //   const [foodQuantity, setFoodQuantity] = useState<number>(Number(quantity));
-  const { user } = useAuth();
+  const {
+    data: profileData,
+    isLoading,
+    isError,
+  } = useQuery<UserProfile>({
+    queryFn: () => fetchUserProfile(user?.id),
+    queryKey: ["userProfile"],
+    enabled: !!user?.isProfileComplete,
+  });
+  console.log("profileData", profileData);
+  const defaultFromValues = {
+    firstName: "",
+    lastName: "",
+    phoneNumber: "",
+    city: "",
+    address: "",
+    postCode: "",
+    country: "",
+  };
 
   const schema = zod.object({
     foodQuantity: zod.coerce
@@ -71,15 +94,7 @@ const Checkout: React.FC = () => {
   const profileResolver = zodResolver(profileSchema);
 
   const profileFormmethods = useForm<profileFormFields>({
-    defaultValues: {
-      firstName: "",
-      lastName: "",
-      phoneNumber: "",
-      city: "",
-      address: "",
-      postCode: "",
-      country: "",
-    },
+    defaultValues: user?.isProfileComplete ? profileData : defaultFromValues,
     resolver: profileResolver,
     mode: "onChange",
   });
@@ -89,10 +104,16 @@ const Checkout: React.FC = () => {
     watch: profileWatch,
     setValue: profileSetValue,
     trigger: profileTrigger,
+    reset,
     handleSubmit,
     formState: { errors: profileErrors, isValid: profileIsValid },
   } = profileFormmethods;
 
+  useEffect(() => {
+    if (profileData) {
+      reset(profileData);
+    }
+  }, [profileData]);
   const increment = () => {
     const currentQuantity = Number(watch("foodQuantity"));
     setValue("foodQuantity", currentQuantity + 1);
@@ -107,6 +128,9 @@ const Checkout: React.FC = () => {
   const onSubmit: SubmitHandler<profileFormFields> = async (data) => {
     console.log(data);
   };
+
+  if (isLoading) return <Spinner />;
+
   return (
     <div className="flex my-6 max-w-[90%] mx-auto flex-col lg:flex-row">
       <div className="w-full lg:w-3/5 grow">
