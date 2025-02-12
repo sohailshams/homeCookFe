@@ -5,10 +5,12 @@ import * as zod from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { UserProfile } from "./Types/Types";
-import { useQuery } from "@tanstack/react-query";
-import { fetchUserProfile } from "@/api/api";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { AxiosError } from "axios";
+import { addProfile, fetchUserProfile } from "@/api/api";
 import Spinner from "./Spinner";
 import ProfileForm from "./ProfileForm";
+import { toast } from "sonner";
 
 type LocationState = {
   foodId: string;
@@ -78,8 +80,22 @@ const Checkout: React.FC = () => {
     trigger("foodQuantity");
   };
 
-  const handleProfileSubmit = async (data: Omit<UserProfile, "id">) => {
-    console.log("Profile Form Submitted", data);
+  const { mutate: addProfileMutation, status } = useMutation({
+    mutationFn: addProfile,
+    onError: (err: AxiosError) => {
+      console.error(err);
+    },
+
+    onSuccess: async () => {
+      toast.success("Profile updated successfully.");
+    },
+  });
+  const handleProfileSubmit = async (
+    data: Omit<UserProfile, "id"> & { userId: number | undefined }
+  ) => {
+    if (isValid) {
+      addProfileMutation(data);
+    }
   };
 
   if (isLoading) return <Spinner />;
