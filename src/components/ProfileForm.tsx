@@ -7,7 +7,9 @@ import { useForm } from "react-hook-form";
 
 type ProfileFormProps = {
   profileData?: Omit<UserProfile, "id">;
-  onSubmit: (data: Omit<UserProfile, "id">) => void;
+  onSubmit: (
+    data: Omit<UserProfile, "id"> & { userId: number | undefined }
+  ) => void;
 };
 
 const ProfileForm: React.FC<ProfileFormProps> = ({ profileData, onSubmit }) => {
@@ -62,7 +64,9 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ profileData, onSubmit }) => {
   }, [profileData]);
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form
+      onSubmit={handleSubmit((data) => onSubmit({ ...data, userId: user?.id }))}
+    >
       <div className="flex flex-col space-y-4 p-4">
         <h1 className="text-2xl font-bold">Checkout</h1>
         <div className="flex flex-col space-y-2">
@@ -196,7 +200,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ profileData, onSubmit }) => {
         <button
           disabled={!profileIsValid}
           type="submit"
-          className={`bg-black text-white p-2 rounded-md ${
+          className={`bg-black text-white p-2 rounded-md hover:opacity-80 ${
             !profileIsValid
               ? "cursor-not-allowed bg-gray-500"
               : "cursor-default"
