@@ -1,4 +1,4 @@
-import { LoginRegisterFormInputs } from "@/components/Types/Types";
+import { LoginRegisterFormInputs, UserProfile } from "@/components/Types/Types";
 import axios from "axios";
 
 const homeCookApi = axios.create({
@@ -46,5 +46,10 @@ export const fetchFoodDetail = async (foodId: string | undefined) => {
 
 export const fetchUserProfile = async (userId: number | undefined) => {
   const response = await homeCookApi.get(`/profile/${userId}`);
+  return response.data;
+};
+
+export const addProfile = async (data: Omit<UserProfile, "id">) => {
+  const response = await homeCookApi.post("/profile", data);
   return response.data;
 };
