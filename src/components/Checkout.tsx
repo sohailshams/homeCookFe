@@ -1,5 +1,5 @@
 import { useAuth } from "@/contexts/AuthContext";
-import { CircleMinus, CirclePlus } from "lucide-react";
+import { CircleMinus, CirclePlus, X } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import * as zod from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -83,7 +83,16 @@ const Checkout: React.FC = () => {
   const { mutate: addProfileMutation, status } = useMutation({
     mutationFn: addProfile,
     onError: (err: AxiosError) => {
-      console.error(err);
+      if (err) {
+        toast.error("Failed to save profile informatoin, please try again", {
+          duration: Infinity,
+          action: {
+            label: <X />,
+            onClick: () => toast.dismiss(),
+          },
+          id: "profileSave-fail-toast",
+        });
+      }
     },
 
     onSuccess: async () => {
@@ -103,7 +112,11 @@ const Checkout: React.FC = () => {
   return (
     <div className="flex my-6 max-w-[90%] mx-auto flex-col lg:flex-row text-gray-700">
       <div className="w-full lg:w-3/5 grow">
-        <ProfileForm profileData={profileData} onSubmit={handleProfileSubmit} />
+        <ProfileForm
+          profileData={profileData}
+          onSubmit={handleProfileSubmit}
+          status={status}
+        />
       </div>
       <div className="w-full lg:w-2/5 flex-none text-gray-700">
         <div className="p-4">
