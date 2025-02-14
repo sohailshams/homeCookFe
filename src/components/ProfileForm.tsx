@@ -4,15 +4,21 @@ import { useEffect } from "react";
 import * as zod from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { LoadingButton } from "./ui/LoadingButton";
 
 type ProfileFormProps = {
   profileData?: Omit<UserProfile, "id">;
   onSubmit: (
     data: Omit<UserProfile, "id"> & { userId: number | undefined }
   ) => void;
+  status: "error" | "idle" | "pending" | "success";
 };
 
-const ProfileForm: React.FC<ProfileFormProps> = ({ profileData, onSubmit }) => {
+const ProfileForm: React.FC<ProfileFormProps> = ({
+  profileData,
+  onSubmit,
+  status,
+}) => {
   const { user } = useAuth();
 
   const profileSchema = zod.object({
@@ -63,6 +69,8 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ profileData, onSubmit }) => {
     }
   }, [profileData]);
 
+  const isPending = status === "pending" ? true : false;
+  const isSuccess = status === "success" ? true : false;
   return (
     <form
       onSubmit={handleSubmit((data) => onSubmit({ ...data, userId: user?.id }))}
@@ -197,19 +205,20 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ profileData, onSubmit }) => {
             </p>
           )}
         </div>
-        <button
+        <LoadingButton
+          loading={isPending}
           disabled={!profileIsValid}
           type="submit"
           className={`bg-black text-white p-2 rounded-md hover:opacity-80 ${
             !profileIsValid
               ? "cursor-not-allowed bg-gray-500"
-              : "cursor-default"
+              : "cursor-pointer"
           }`}
         >
           {user?.isProfileComplete
             ? "Update Profile Info"
             : "Save Profile Info"}
-        </button>
+        </LoadingButton>
       </div>
     </form>
   );
