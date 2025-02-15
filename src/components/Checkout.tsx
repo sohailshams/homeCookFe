@@ -11,6 +11,7 @@ import { addProfile, fetchUserProfile } from "@/api/api";
 import Spinner from "./Spinner";
 import ProfileForm from "./ProfileForm";
 import { toast } from "sonner";
+import { MutationStatus } from "@/utils/Enums";
 
 type LocationState = {
   foodId: string;
@@ -115,7 +116,7 @@ const Checkout: React.FC = () => {
         <ProfileForm
           profileData={profileData}
           onSubmit={handleProfileSubmit}
-          status={status}
+          status={status as MutationStatus}
         />
       </div>
       <div className="w-full lg:w-2/5 flex-none text-gray-700">
