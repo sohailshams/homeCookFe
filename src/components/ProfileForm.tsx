@@ -5,13 +5,14 @@ import * as zod from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { LoadingButton } from "./ui/LoadingButton";
+import { MutationStatus } from "@/utils/Enums";
 
 type ProfileFormProps = {
   profileData?: Omit<UserProfile, "id">;
   onSubmit: (
     data: Omit<UserProfile, "id"> & { userId: number | undefined }
   ) => void;
-  status: "error" | "idle" | "pending" | "success";
+  status: MutationStatus;
 };
 
 const ProfileForm: React.FC<ProfileFormProps> = ({
@@ -69,8 +70,8 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
     }
   }, [profileData]);
 
-  const isPending = status === "pending" ? true : false;
-  const isSuccess = status === "success" ? true : false;
+  const isPending = status === MutationStatus.Pending ? true : false;
+  const isSuccess = status === MutationStatus.Success ? true : false;
   return (
     <form
       onSubmit={handleSubmit((data) => onSubmit({ ...data, userId: user?.id }))}
