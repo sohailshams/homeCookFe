@@ -7,7 +7,7 @@ import { useForm } from "react-hook-form";
 import { UserProfile } from "./Types/Types";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { AxiosError } from "axios";
-import { addProfile, fetchUserProfile } from "@/api/api";
+import { addProfile, fetchUserProfile, updateProfile } from "@/api/api";
 import Spinner from "./Spinner";
 import ProfileForm from "./ProfileForm";
 import { toast } from "sonner";
@@ -81,8 +81,8 @@ const Checkout: React.FC = () => {
     trigger("foodQuantity");
   };
 
-  const { mutate: addProfileMutation, status } = useMutation({
-    mutationFn: addProfile,
+  const { mutate: addUpdateProfileMutation, status } = useMutation({
+    mutationFn: user?.isProfileComplete ? updateProfile : addProfile,
     onError: (err: AxiosError) => {
       if (err) {
         toast.error("Failed to save profile informatoin, please try again", {
@@ -104,7 +104,7 @@ const Checkout: React.FC = () => {
     data: Omit<UserProfile, "id"> & { userId: number | undefined }
   ) => {
     if (isValid) {
-      addProfileMutation(data);
+      addUpdateProfileMutation(data);
     }
   };
 
