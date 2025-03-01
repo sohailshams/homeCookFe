@@ -12,6 +12,7 @@ import Spinner from "./Spinner";
 import ProfileForm from "./ProfileForm";
 import { toast } from "sonner";
 import { MutationStatus } from "@/utils/Enums";
+import { decrementFoodQuantity, incrementFoodQuantity } from "@/utils/utils";
 
 type LocationState = {
   foodId: string;
@@ -69,18 +70,6 @@ const Checkout: React.FC = () => {
     formState: { errors, isValid },
   } = methods;
 
-  const increment = () => {
-    const currentQuantity = Number(watch("foodQuantity"));
-    setValue("foodQuantity", currentQuantity + 1);
-    trigger("foodQuantity");
-  };
-
-  const decrement = () => {
-    const currentQuantity = Number(watch("foodQuantity"));
-    setValue("foodQuantity", currentQuantity - 1);
-    trigger("foodQuantity");
-  };
-
   const { mutate: addUpdateProfileMutation, status } = useMutation({
     mutationFn: user?.isProfileComplete ? updateProfile : addProfile,
     onError: (err: AxiosError) => {
@@ -125,7 +114,17 @@ const Checkout: React.FC = () => {
           <div className="flex justify-between my-2">
             <p>{name}</p>
             <div className="flex items-center space-x-2">
-              <CircleMinus className="cursor-pointer" onClick={decrement} />
+              <CircleMinus
+                className="cursor-pointer"
+                onClick={() =>
+                  decrementFoodQuantity(
+                    Number(watch("foodQuantity")),
+                    setValue,
+                    trigger,
+                    "foodQuantity"
+                  )
+                }
+              />
               <input
                 className={`w-10 outline-none border-[1px] border-gray-300 [&::-webkit-inner-spin-button]:appearance-none text-center  ${
                   errors.foodQuantity ? "border-red-500" : "border-gray-300"
@@ -133,7 +132,17 @@ const Checkout: React.FC = () => {
                 type="number"
                 {...register("foodQuantity")}
               />
-              <CirclePlus className="cursor-pointer" onClick={increment} />
+              <CirclePlus
+                className="cursor-pointer"
+                onClick={() =>
+                  incrementFoodQuantity(
+                    Number(watch("foodQuantity")),
+                    setValue,
+                    trigger,
+                    "foodQuantity"
+                  )
+                }
+              />
             </div>
             <p>£{price}</p>
           </div>
