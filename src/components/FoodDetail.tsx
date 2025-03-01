@@ -1,6 +1,6 @@
 import { fetchFoodDetail } from "@/api/api";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronsDownUp, X } from "lucide-react";
+import { ChevronsDownUp, CircleMinus, CirclePlus, X } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import Spinner from "./Spinner";
@@ -17,7 +17,11 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "./ui/collapsible";
-import { formatDate } from "@/utils/utils";
+import {
+  decrementFoodQuantity,
+  formatDate,
+  incrementFoodQuantity,
+} from "@/utils/utils";
 import { Button } from "./ui/button";
 import * as zod from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -67,6 +71,8 @@ const FoodDetail: React.FC = () => {
   const {
     register,
     watch,
+    setValue,
+    trigger,
     formState: { errors, isValid },
   } = methods;
 
@@ -141,13 +147,37 @@ const FoodDetail: React.FC = () => {
           <>
             <form className="my-2">
               <label className="font-semibold">Select Quantity:</label>
-              <input
-                type="number"
-                {...register("quantity")}
-                className={`border-[1px] ${
-                  errors.quantity ? "border-red-500" : "border-gray-300"
-                }  rounded px-2 py-1 w-16 ml-2 outline-none`}
-              />
+              <div className="flex items-center space-x-2">
+                <CircleMinus
+                  className="cursor-pointer"
+                  onClick={() =>
+                    decrementFoodQuantity(
+                      Number(watch("quantity")),
+                      setValue,
+                      trigger,
+                      "quantity"
+                    )
+                  }
+                />
+                <input
+                  type="number"
+                  {...register("quantity")}
+                  className={`w-10 outline-none text-center border-[1px] [&::-webkit-inner-spin-button]:appearance-none ${
+                    errors.quantity ? "border-red-500" : "border-gray-300"
+                  }  rounded px-2 py-1 w-16 ml-2 outline-none`}
+                />
+                <CirclePlus
+                  className="cursor-pointer"
+                  onClick={() =>
+                    incrementFoodQuantity(
+                      Number(watch("quantity")),
+                      setValue,
+                      trigger,
+                      "quantity"
+                    )
+                  }
+                />
+              </div>
               {errors.quantity && (
                 <p className="text-red-500 text-sm mt-1">
                   {errors.quantity.message}
