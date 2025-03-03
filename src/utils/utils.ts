@@ -10,13 +10,11 @@ export const incrementFoodQuantity = (
   currentQuantity: number,
   setValue: UseFormSetValue<{
     foodQuantity: number;
-    quantity: number;
   }>,
   trigger: UseFormTrigger<{
     foodQuantity: number;
-    quantity: number;
   }>,
-  fieldName: "foodQuantity" | "quantity"
+  fieldName: "foodQuantity"
 ) => {
   setValue(fieldName, currentQuantity + 1);
   trigger(fieldName);
@@ -26,13 +24,11 @@ export const decrementFoodQuantity = (
   currentQuantity: number,
   setValue: UseFormSetValue<{
     foodQuantity: number;
-    quantity: number;
   }>,
   trigger: UseFormTrigger<{
     foodQuantity: number;
-    quantity: number;
   }>,
-  fieldName: "foodQuantity" | "quantity"
+  fieldName: "foodQuantity"
 ) => {
   setValue(fieldName, currentQuantity - 1);
   trigger(fieldName);
