@@ -8,9 +8,15 @@ export const formatDate = (date: Date | string | null | undefined) => {
 
 export const incrementFoodQuantity = (
   currentQuantity: number,
-  setValue: UseFormSetValue<any>,
-  trigger: UseFormTrigger<any>,
-  fieldName: string
+  setValue: UseFormSetValue<{
+    foodQuantity: number;
+    quantity: number;
+  }>,
+  trigger: UseFormTrigger<{
+    foodQuantity: number;
+    quantity: number;
+  }>,
+  fieldName: "foodQuantity" | "quantity"
 ) => {
   setValue(fieldName, currentQuantity + 1);
   trigger(fieldName);
@@ -18,9 +24,15 @@ export const incrementFoodQuantity = (
 
 export const decrementFoodQuantity = (
   currentQuantity: number,
-  setValue: UseFormSetValue<any>,
-  trigger: UseFormTrigger<any>,
-  fieldName: string
+  setValue: UseFormSetValue<{
+    foodQuantity: number;
+    quantity: number;
+  }>,
+  trigger: UseFormTrigger<{
+    foodQuantity: number;
+    quantity: number;
+  }>,
+  fieldName: "foodQuantity" | "quantity"
 ) => {
   setValue(fieldName, currentQuantity - 1);
   trigger(fieldName);
