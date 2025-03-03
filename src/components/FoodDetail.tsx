@@ -43,7 +43,7 @@ const FoodDetail: React.FC = () => {
   const disabled = (food?.quantityAvailable ?? 0) === 0;
 
   const schema = zod.object({
-    quantity: zod.coerce
+    foodQuantity: zod.coerce
       .number({
         required_error: "Quantity is missing.",
       })
@@ -63,7 +63,7 @@ const FoodDetail: React.FC = () => {
   const resolver = zodResolver(schema);
 
   const methods = useForm<formFields>({
-    defaultValues: { quantity: 1 },
+    defaultValues: { foodQuantity: 1 },
     resolver,
     mode: "onChange",
   });
@@ -81,7 +81,7 @@ const FoodDetail: React.FC = () => {
     navigate("/checkout", {
       state: {
         foodId: foodId,
-        quantity: watch("quantity"),
+        quantity: watch("foodQuantity"),
         price: food?.price,
         name: food?.name,
         quantityAvailable: food?.quantityAvailable,
@@ -152,35 +152,35 @@ const FoodDetail: React.FC = () => {
                   className="cursor-pointer"
                   onClick={() =>
                     decrementFoodQuantity(
-                      Number(watch("quantity")),
+                      Number(watch("foodQuantity")),
                       setValue,
                       trigger,
-                      "quantity"
+                      "foodQuantity"
                     )
                   }
                 />
                 <input
                   type="number"
-                  {...register("quantity")}
+                  {...register("foodQuantity")}
                   className={`w-10 outline-none text-center border-[1px] [&::-webkit-inner-spin-button]:appearance-none ${
-                    errors.quantity ? "border-red-500" : "border-gray-300"
+                    errors.foodQuantity ? "border-red-500" : "border-gray-300"
                   }  rounded px-2 py-1 w-16 ml-2 outline-none`}
                 />
                 <CirclePlus
                   className="cursor-pointer"
                   onClick={() =>
                     incrementFoodQuantity(
-                      Number(watch("quantity")),
+                      Number(watch("foodQuantity")),
                       setValue,
                       trigger,
-                      "quantity"
+                      "foodQuantity"
                     )
                   }
                 />
               </div>
-              {errors.quantity && (
+              {errors.foodQuantity && (
                 <p className="text-red-500 text-sm mt-1">
-                  {errors.quantity.message}
+                  {errors.foodQuantity.message}
                 </p>
               )}
             </form>
