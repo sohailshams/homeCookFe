@@ -25,7 +25,7 @@ type LocationState = {
 const Checkout: React.FC = () => {
   const { user } = useAuth();
   const location = useLocation();
-  const { foodId, quantity, price, name, quantityAvailable } =
+  const { quantity, price, name, quantityAvailable } =
     (location.state as LocationState) || {};
 
   const {
@@ -98,6 +98,16 @@ const Checkout: React.FC = () => {
   };
 
   if (isLoading) return <Spinner />;
+  if (isError) {
+    toast.error("Failed to load profile informatoin, please try again", {
+      duration: Infinity,
+      action: {
+        label: <X />,
+        onClick: () => toast.dismiss(),
+      },
+      id: "getProfile-fail-toast",
+    });
+  }
 
   return (
     <div className="flex my-6 max-w-[90%] mx-auto flex-col lg:flex-row text-gray-700">
