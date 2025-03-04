@@ -22,7 +22,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
 }) => {
   const { user } = useAuth();
 
-  const profileSchema = zod.object({
+  const schema = zod.object({
     firstName: zod.string().min(2, { message: "First name is required." }),
     lastName: zod.string().min(2, { message: "Last name is required." }),
     phoneNumber: zod.coerce
@@ -34,9 +34,9 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
     country: zod.string().min(2, { message: "Country is required." }),
   });
 
-  type profileFormFields = zod.infer<typeof profileSchema>;
+  type formFields = zod.infer<typeof schema>;
 
-  const profileResolver = zodResolver(profileSchema);
+  const resolver = zodResolver(schema);
 
   const defaultFromValues = {
     firstName: "",
@@ -48,21 +48,19 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
     country: "",
   };
 
-  const profileFormmethods = useForm<profileFormFields>({
+  const methods = useForm<formFields>({
     defaultValues: user?.isProfileComplete ? profileData : defaultFromValues,
-    resolver: profileResolver,
+    resolver: resolver,
     mode: "onChange",
   });
 
   const {
-    register: profileRegister,
-    watch: profileWatch,
-    setValue: profileSetValue,
-    trigger: profileTrigger,
+    register,
+    trigger,
     reset,
     handleSubmit,
-    formState: { errors: profileErrors, isValid: profileIsValid },
-  } = profileFormmethods;
+    formState: { errors, isValid },
+  } = methods;
 
   useEffect(() => {
     if (profileData) {
@@ -71,7 +69,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
   }, [profileData]);
 
   const isPending = status === MutationStatus.Pending ? true : false;
-  const isSuccess = status === MutationStatus.Success ? true : false;
+
   return (
     <form
       onSubmit={handleSubmit((data) => onSubmit({ ...data, userId: user?.id }))}
@@ -83,8 +81,8 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
             First Name
           </label>
           <input
-            {...profileRegister("firstName", {
-              onChange: () => profileTrigger("firstName"),
+            {...register("firstName", {
+              onChange: () => trigger("firstName"),
             })}
             type="text"
             id="firstName"
@@ -92,10 +90,8 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
             placeholder="First Name"
             className="p-2 border-[1px] border-gray-300 rounded-md outline-none"
           />
-          {profileErrors.firstName && (
-            <p className="text-red-500 text-sm ">
-              {profileErrors.firstName.message}
-            </p>
+          {errors.firstName && (
+            <p className="text-red-500 text-sm ">{errors.firstName.message}</p>
           )}
         </div>
         <div className="flex flex-col space-y-2">
@@ -103,17 +99,15 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
             Last Name
           </label>
           <input
-            {...profileRegister("lastName")}
+            {...register("lastName")}
             type="text"
             id="lastName"
             name="lastName"
             placeholder="Last Name"
             className="p-2 border-[1px] border-gray-300 rounded-md outline-none"
           />
-          {profileErrors.lastName && (
-            <p className="text-red-500 text-sm ">
-              {profileErrors.lastName.message}
-            </p>
+          {errors.lastName && (
+            <p className="text-red-500 text-sm ">{errors.lastName.message}</p>
           )}
         </div>
         <div className="flex flex-col space-y-2">
@@ -121,16 +115,16 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
             Phone Number
           </label>
           <input
-            {...profileRegister("phoneNumber")}
+            {...register("phoneNumber")}
             type="text"
             id="phoneNumber"
             name="phoneNumber"
             placeholder="Phone Number"
             className="p-2 border-[1px] border-gray-300 rounded-md outline-none"
           />
-          {profileErrors.phoneNumber && (
+          {errors.phoneNumber && (
             <p className="text-red-500 text-sm ">
-              {profileErrors.phoneNumber.message}
+              {errors.phoneNumber.message}
             </p>
           )}
         </div>
@@ -139,17 +133,15 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
             Address
           </label>
           <input
-            {...profileRegister("address")}
+            {...register("address")}
             type="text"
             id="address"
             name="address"
             placeholder="Address"
             className="p-2 border-[1px] border-gray-300 rounded-md outline-none"
           />
-          {profileErrors.address && (
-            <p className="text-red-500 text-sm ">
-              {profileErrors.address.message}
-            </p>
+          {errors.address && (
+            <p className="text-red-500 text-sm ">{errors.address.message}</p>
           )}
         </div>
         <div className="flex flex-col space-y-2">
@@ -157,17 +149,15 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
             City
           </label>
           <input
-            {...profileRegister("city")}
+            {...register("city")}
             type="text"
             id="city"
             name="city"
             placeholder="City"
             className="p-2 border-[1px] border-gray-300 rounded-md outline-none"
           />
-          {profileErrors.city && (
-            <p className="text-red-500 text-sm ">
-              {profileErrors.city.message}
-            </p>
+          {errors.city && (
+            <p className="text-red-500 text-sm ">{errors.city.message}</p>
           )}
         </div>
         <div className="flex flex-col space-y-2">
@@ -175,17 +165,15 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
             Post Code
           </label>
           <input
-            {...profileRegister("postCode")}
+            {...register("postCode")}
             type="text"
             id="postCode"
             name="postCode"
             placeholder="Post Code"
             className="p-2 border-[1px] border-gray-300 rounded-md outline-none"
           />
-          {profileErrors.postCode && (
-            <p className="text-red-500 text-sm ">
-              {profileErrors.postCode.message}
-            </p>
+          {errors.postCode && (
+            <p className="text-red-500 text-sm ">{errors.postCode.message}</p>
           )}
         </div>
         <div className="flex flex-col space-y-2">
@@ -193,27 +181,23 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
             Country
           </label>
           <input
-            {...profileRegister("country")}
+            {...register("country")}
             type="text"
             id="country"
             name="country"
             placeholder="country"
             className="p-2 border-[1px] border-gray-300 rounded-md outline-none"
           />
-          {profileErrors.country && (
-            <p className="text-red-500 text-sm ">
-              {profileErrors.country.message}
-            </p>
+          {errors.country && (
+            <p className="text-red-500 text-sm ">{errors.country.message}</p>
           )}
         </div>
         <LoadingButton
           loading={isPending}
-          disabled={!profileIsValid}
+          disabled={!isValid}
           type="submit"
           className={`bg-black text-white p-2 rounded-md hover:opacity-80 ${
-            !profileIsValid
-              ? "cursor-not-allowed bg-gray-500"
-              : "cursor-pointer"
+            !isValid ? "cursor-not-allowed bg-gray-500" : "cursor-pointer"
           }`}
         >
           {user?.isProfileComplete
