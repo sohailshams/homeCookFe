@@ -65,7 +65,6 @@ export const createPaymentIntent = async (data: {
   Quantity: number;
   ImageUrl: string;
 }) => {
-  console.log("data", data);
   const response = await homeCookApi.post("/CreatePaymentIntent", data);
   return response.data;
 };
