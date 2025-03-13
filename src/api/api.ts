@@ -50,12 +50,22 @@ export const fetchUserProfile = async (userId: number | undefined) => {
 };
 
 export const addProfile = async (data: Omit<UserProfile, "id">) => {
-  console.log("data", data);
   const response = await homeCookApi.post("/profile", data);
   return response.data;
 };
 
 export const updateProfile = async (data: Omit<UserProfile, "id">) => {
   const response = await homeCookApi.put("/profile/update-profile", data);
+  return response.data;
+};
+
+export const createPaymentIntent = async (data: {
+  Name: string;
+  Price: number;
+  Quantity: number;
+  ImageUrl: string;
+}) => {
+  console.log("data", data);
+  const response = await homeCookApi.post("/CreatePaymentIntent", data);
   return response.data;
 };
