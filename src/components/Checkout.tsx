@@ -7,12 +7,25 @@ import { useForm } from "react-hook-form";
 import { UserProfile } from "./Types/Types";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { AxiosError } from "axios";
-import { addProfile, fetchUserProfile, updateProfile } from "@/api/api";
+import {
+  addProfile,
+  createPaymentIntent,
+  fetchUserProfile,
+  updateProfile,
+} from "@/api/api";
 import Spinner from "./Spinner";
 import ProfileForm from "./ProfileForm";
 import { toast } from "sonner";
 import { MutationStatus } from "@/utils/Enums";
 import { decrementFoodQuantity, incrementFoodQuantity } from "@/utils/utils";
+import {
+  useStripe,
+  useElements,
+  PaymentElement,
+} from "@stripe/react-stripe-js";
+import { Elements } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
+import { useEffect, useState } from "react";
 
 type LocationState = {
   foodId: string;
@@ -22,7 +35,10 @@ type LocationState = {
   quantityAvailable: number;
 };
 
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
+
 const Checkout: React.FC = () => {
+  const [clientSecret, setClientSecret] = useState("");
   const { user } = useAuth();
   const location = useLocation();
   const { quantity, price, name, quantityAvailable } =
@@ -37,6 +53,36 @@ const Checkout: React.FC = () => {
     queryKey: ["userProfile"],
     enabled: !!user?.isProfileComplete,
   });
+
+  const { mutate: createPaymentIntentMutation, data } = useMutation({
+    mutationFn: createPaymentIntent,
+    onError: (err: AxiosError) => {
+      if (err) {
+        toast.error("Failed to create payment intent.", {
+          duration: Infinity,
+          action: {
+            label: <X />,
+            onClick: () => toast.dismiss(),
+          },
+          id: "paymentIntent-fail-toast",
+        });
+      }
+    },
+
+    onSuccess: async () => {
+      toast.success("Payment successful.");
+    },
+  });
+
+  useEffect(() => {
+    createPaymentIntentMutation({
+      Amount: 40,
+    });
+  }, []);
+
+  useEffect(() => {
+    setClientSecret(data?.clientSecret ?? "");
+  }, [data]);
 
   const schema = zod.object({
     foodQuantity: zod.coerce
@@ -109,65 +155,81 @@ const Checkout: React.FC = () => {
     });
   }
 
+  if (!clientSecret || !stripePromise) return null;
+
   return (
-    <div className="flex my-6 max-w-[90%] mx-auto flex-col lg:flex-row text-gray-700">
-      <div className="w-full lg:w-3/5 grow">
-        <ProfileForm
-          profileData={profileData}
-          onSubmit={handleProfileSubmit}
-          status={status as MutationStatus}
-        />
-      </div>
-      <div className="w-full lg:w-2/5 flex-none text-gray-700">
-        <div className="p-4">
-          <h1 className="text-2xl font-bold">Order Summary</h1>
-          <div className="flex justify-between my-2">
-            <p>{name}</p>
-            <div className="flex items-center space-x-2">
-              <CircleMinus
-                className="cursor-pointer"
-                onClick={() =>
-                  decrementFoodQuantity(
-                    Number(watch("foodQuantity")),
-                    setValue,
-                    trigger,
-                    "foodQuantity"
-                  )
-                }
-              />
-              <input
-                className={`w-10 outline-none border-[1px] border-gray-300 [&::-webkit-inner-spin-button]:appearance-none text-center  ${
-                  errors.foodQuantity ? "border-red-500" : "border-gray-300"
-                }`}
-                type="number"
-                {...register("foodQuantity")}
-              />
-              <CirclePlus
-                className="cursor-pointer"
-                onClick={() =>
-                  incrementFoodQuantity(
-                    Number(watch("foodQuantity")),
-                    setValue,
-                    trigger,
-                    "foodQuantity"
-                  )
-                }
-              />
+    <Elements stripe={stripePromise} options={{ clientSecret }}>
+      <div className="flex my-6 max-w-[90%] mx-auto flex-col lg:flex-row text-gray-700">
+        <div className="w-full lg:w-3/5 grow">
+          <ProfileForm
+            profileData={profileData}
+            onSubmit={handleProfileSubmit}
+            status={status as MutationStatus}
+          />
+        </div>
+        <div className="w-full lg:w-2/5 flex-none text-gray-700">
+          <div className="p-4">
+            <h1 className="text-2xl font-bold">Order Summary</h1>
+            <div className="flex justify-between my-2">
+              <p>{name}</p>
+              <div className="flex items-center space-x-2">
+                <CircleMinus
+                  className="cursor-pointer"
+                  onClick={() =>
+                    decrementFoodQuantity(
+                      Number(watch("foodQuantity")),
+                      setValue,
+                      trigger,
+                      "foodQuantity"
+                    )
+                  }
+                />
+                <input
+                  className={`w-10 outline-none border-[1px] border-gray-300 [&::-webkit-inner-spin-button]:appearance-none text-center  ${
+                    errors.foodQuantity ? "border-red-500" : "border-gray-300"
+                  }`}
+                  type="number"
+                  {...register("foodQuantity")}
+                />
+                <CirclePlus
+                  className="cursor-pointer"
+                  onClick={() =>
+                    incrementFoodQuantity(
+                      Number(watch("foodQuantity")),
+                      setValue,
+                      trigger,
+                      "foodQuantity"
+                    )
+                  }
+                />
+              </div>
+              <p>£{price}</p>
             </div>
-            <p>£{price}</p>
-          </div>
-          {errors.foodQuantity && (
-            <p className="text-red-500 text-sm mt-1 text-center">
-              {errors.foodQuantity.message}
-            </p>
-          )}
-          <div className="flex justify-between my-2">
-            <p>Total</p>
-            <p>£{price * watch("foodQuantity")}</p>
+            {errors.foodQuantity && (
+              <p className="text-red-500 text-sm mt-1 text-center">
+                {errors.foodQuantity.message}
+              </p>
+            )}
+            <div className="flex justify-between my-2">
+              <p>Total</p>
+              <p>£{price * watch("foodQuantity")}</p>
+            </div>
+            <form className="mt-4">
+              {clientSecret && <PaymentElement />}
+
+              <button
+                type="submit"
+                // disabled={!stripe}
+                className="mt-4 w-full bg-blue-600 text-white py-2 rounded-md disabled:opacity-50"
+              >
+                {/* {loading ? "Processing..." : "Pay Now"} */}
+                Pay Now
+              </button>
+            </form>
           </div>
         </div>
       </div>
-    </div>
+    </Elements>
   );
 };
 export default Checkout;
