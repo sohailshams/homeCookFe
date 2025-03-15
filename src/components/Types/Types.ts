@@ -30,3 +30,7 @@ export type UserProfile = {
   country: string;
   postCode: string;
 };
+
+export type CreatePaymentIntent = {
+  Amount: number;
+};

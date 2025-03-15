@@ -1,4 +1,8 @@
-import { LoginRegisterFormInputs, UserProfile } from "@/components/Types/Types";
+import {
+  CreatePaymentIntent,
+  LoginRegisterFormInputs,
+  UserProfile,
+} from "@/components/Types/Types";
 import axios from "axios";
 
 const homeCookApi = axios.create({
@@ -59,12 +63,7 @@ export const updateProfile = async (data: Omit<UserProfile, "id">) => {
   return response.data;
 };
 
-export const createPaymentIntent = async (data: {
-  Name: string;
-  Price: number;
-  Quantity: number;
-  ImageUrl: string;
-}) => {
+export const createPaymentIntent = async (data: CreatePaymentIntent) => {
   const response = await homeCookApi.post("/CreatePaymentIntent", data);
   return response.data;
 };
