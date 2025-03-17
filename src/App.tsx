@@ -8,7 +8,8 @@ import Spinner from "./components/Spinner";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Layout from "./components/Layout";
 import FoodDetail from "./components/FoodDetail";
-import Checkout from "./components/Checkout";
+import CheckoutContainer from "./components/CheckoutContainer";
+import PaymentSuccess from "./components/PaymentSuccess";
 
 function App() {
   const { user } = useAuth();
@@ -40,10 +41,18 @@ function App() {
             }
           />
           <Route
-            path="/checkout"
+            path="/checkoutContainer"
             element={
               <ProtectedRoute>
-                <Checkout />
+                <CheckoutContainer />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/payment-success"
+            element={
+              <ProtectedRoute>
+                <PaymentSuccess />
               </ProtectedRoute>
             }
           />
