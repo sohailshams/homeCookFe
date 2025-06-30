@@ -21,7 +21,7 @@ type LocationState = {
 const CheckoutContainer: React.FC = () => {
   const [clientSecret, setClientSecret] = useState<string>("");
   const location = useLocation();
-  const { quantity, price, name, quantityAvailable } =
+  const { foodId, quantity, price, name, quantityAvailable } =
     (location.state as LocationState) || {};
   const [itemQuantity, setItemQuantity] = useState<number>(quantity);
 
@@ -44,6 +44,8 @@ const CheckoutContainer: React.FC = () => {
   useEffect(() => {
     createPaymentIntentMutation({
       Amount: price * itemQuantity,
+      Quantity: itemQuantity,
+      FoodId: foodId,
     });
   }, [itemQuantity, setItemQuantity]);
 
