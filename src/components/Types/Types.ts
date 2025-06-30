@@ -33,4 +33,6 @@ export type UserProfile = {
 
 export type CreatePaymentIntent = {
   Amount: number;
+  Quantity: number;
+  FoodId: string;
 };
