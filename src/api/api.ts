@@ -67,3 +67,10 @@ export const createPaymentIntent = async (data: CreatePaymentIntent) => {
   const response = await homeCookApi.post("/CreatePaymentIntent", data);
   return response.data;
 };
+
+export const search = async (searchTerm: string) => {
+  const response = await homeCookApi.get(`/FoodSearch`, {
+    params: { foodSearchTerm: searchTerm },
+  });
+  return response.data;
+};
