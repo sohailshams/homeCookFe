@@ -12,11 +12,11 @@ import { Category } from "./Types/Types";
 import { toast } from "sonner";
 import { X } from "lucide-react";
 
-interface CategiruesProps {
+interface CategoriesProps {
   setCategoryId: (id: number) => void;
 }
 
-const Categories: React.FC<CategiruesProps> = ({ setCategoryId }) => {
+const Categories: React.FC<CategoriesProps> = ({ setCategoryId }) => {
   const {
     data: categories,
     isError,
