@@ -1,5 +1,4 @@
 import "./App.css";
-import FoodList from "./components/FoodList";
 import Login from "./components/Login";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "sonner";
@@ -10,6 +9,7 @@ import Layout from "./components/Layout";
 import FoodDetail from "./components/FoodDetail";
 import CheckoutContainer from "./components/CheckoutContainer";
 import PaymentSuccess from "./components/PaymentSuccess";
+import { FoodContainer } from "./components/FoodContainer";
 
 function App() {
   const { user } = useAuth();
@@ -28,7 +28,7 @@ function App() {
             path="/food-list"
             element={
               <ProtectedRoute>
-                <FoodList />
+                <FoodContainer />
               </ProtectedRoute>
             }
           />
