@@ -14,10 +14,13 @@ import { logoutUser } from "@/api/api";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import logo from "../assets/hc-logo.png";
+import { ChangeEvent, FormEvent, useState } from "react";
 
 const Navbar: React.FC = () => {
   const { user, setUser } = useAuth();
   const navigate = useNavigate();
+  const [search, setSearch] = useState("");
+
   const { mutate: logoutMutation } = useMutation({
     mutationFn: logoutUser,
     onError: () => {
@@ -39,6 +42,17 @@ const Navbar: React.FC = () => {
     },
   });
 
+  const handleSearchInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setSearch(e.target.value);
+  };
+
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!search.trim()) return;
+    navigate(`/food-list?query=${encodeURIComponent(search)}`);
+    setSearch(" ");
+  };
+
   return (
     <div className=" py-6 my-2 border-b-[1px] border-gray-300 sticky top-0 z-50 bg-white">
       <div className="flex items-center max-w-[80%] mx-auto ">
@@ -54,12 +68,16 @@ const Navbar: React.FC = () => {
           </Avatar>
         </div>
         <div className="flex-1">
-          <form className="flex items-center mx-auto space-x-1 bg-white p-4 border-[1px] border-gray-300 shadow-md rounded-full flex-1 max-w-[80%]">
-            <SearchIcon className="h-4 text-gray-600" />
+          <form onSubmit={handleSubmit} className="flex items-center mx-auto space-x-1 bg-white p-4 border-[1px] border-gray-300 shadow-md rounded-full flex-1 max-w-[80%]">
+            <button>
+              <SearchIcon className="h-4 text-gray-600" />
+            </button>
             <input
               className="bg-transparent flex-1 outline-none"
               type="text"
               placeholder="Search"
+              value={search}
+              onChange={handleSearchInputChange}
             />
           </form>
         </div>
