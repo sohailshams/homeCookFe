@@ -90,7 +90,7 @@ const Navbar: React.FC = () => {
             </DropdownMenuTrigger>
             <DropdownMenuContent className="mt-2">
               <DropdownMenuSeparator />
-              {user ? (
+              {user && (
                 <DropdownMenuItem
                   className="cursor-pointer"
                   onClick={() => {
@@ -99,15 +99,7 @@ const Navbar: React.FC = () => {
                 >
                   Logout
                 </DropdownMenuItem>
-              ) : (
-                <DropdownMenuItem className="cursor-pointer">
-                  Login
-                </DropdownMenuItem>
               )}
-
-              <DropdownMenuItem className="cursor-pointer">
-                Register
-              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
