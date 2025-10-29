@@ -10,7 +10,7 @@ const FoodCard: React.FC<FoodCardProps> = ({ food }) => {
   return (
     <Link
       to={`/food/${food.id}`}
-      className="bg-white shadow-lg rounded-lg overflow-hidden max-w-64 max-[375px]:mx-auto cursor-pointer"
+      className="bg-white shadow-lg rounded-lg overflow-hidden max-[375px]:mx-auto cursor-pointer"
     >
       <img
         src={food.foodImageUrls[0]}
