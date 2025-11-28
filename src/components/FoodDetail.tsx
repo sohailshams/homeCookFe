@@ -49,9 +49,8 @@ const FoodDetail: React.FC = () => {
       })
       .min(1, { message: "Quantity must be at least 1." })
       .max(food?.quantityAvailable ?? 0, {
-        message: `Quantity must be less than or equal to ${
-          food?.quantityAvailable ?? 0
-        }.`,
+        message: `Quantity must be less than or equal to ${food?.quantityAvailable ?? 0
+          }.`,
       })
       .int({
         message: "Please add an integer.",
@@ -132,9 +131,9 @@ const FoodDetail: React.FC = () => {
             <span className="font-semibold text-lg">Ingredients</span>
             <ChevronsDownUp className="h-5" />
           </CollapsibleTrigger>
-          <CollapsibleContent className="grid grid-cols-2 gap-2">
+          <CollapsibleContent className="flex gap-4">
             {food?.ingredients?.map((ingredient: string, index: number) => (
-              <p key={index} className="my-2 py-1 pl-1 max-w-56 shadow-lg">
+              <p key={index} className="my-2 py-2 px-4 max-w-56 shadow-lg">
                 {ingredient}
               </p>
             ))}
@@ -162,9 +161,8 @@ const FoodDetail: React.FC = () => {
                 <input
                   type="number"
                   {...register("foodQuantity")}
-                  className={`w-10 outline-none text-center border-[1px] [&::-webkit-inner-spin-button]:appearance-none ${
-                    errors.foodQuantity ? "border-red-500" : "border-gray-300"
-                  }  rounded px-2 py-1 w-16 ml-2 outline-none`}
+                  className={`w-10 outline-none text-center border-[1px] [&::-webkit-inner-spin-button]:appearance-none ${errors.foodQuantity ? "border-red-500" : "border-gray-300"
+                    }  rounded px-2 py-1 w-16 ml-2 outline-none`}
                 />
                 <CirclePlus
                   className="cursor-pointer"
