@@ -6,6 +6,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "./ui/tooltip"
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import UserAvatar from "./UserAvatar";
 import { useAuth } from "@/contexts/AuthContext";
@@ -87,15 +92,21 @@ const Navbar: React.FC = () => {
           </form>
 
           {/* Button to add food item */}
-          <button
-            onClick={() => navigate('/add-food')}
-            type="button"
-            className="ml-2 w-14 h-14 flex items-center justify-center border-[1px] border-gray-300 rounded-full hover:bg-gray-300 text-white shadow-md"
-          >
-            <Plus className="text-gray-500 " />
-          </button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                onClick={() => navigate('/add-food')}
+                type="button"
+                className="ml-2 w-14 h-14 flex items-center justify-center border-[1px] border-gray-300 rounded-full hover:bg-gray-300 text-white shadow-md"
+              >
+                <Plus className="text-gray-500 " />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent className="bg-gray-300">
+              <p className="text-black">Add Food</p>
+            </TooltipContent>
+          </Tooltip>
         </div>
-
 
         <div className="flex items-center space-x-2 border-[1px] border-gray-300 p-2  rounded-full shadow-md">
           <DropdownMenu>
