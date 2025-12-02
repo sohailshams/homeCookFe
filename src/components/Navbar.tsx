@@ -1,4 +1,4 @@
-import { SearchIcon, X, AlignJustify } from "lucide-react";
+import { SearchIcon, X, AlignJustify, Plus } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -67,11 +67,16 @@ const Navbar: React.FC = () => {
             <AvatarFallback>HC</AvatarFallback>
           </Avatar>
         </div>
-        <div className="flex-1">
-          <form onSubmit={handleSubmit} className="flex items-center mx-auto space-x-1 bg-white p-4 border-[1px] border-gray-300 shadow-md rounded-full flex-1 max-w-[80%]">
-            <button>
+        <div className="flex-1 relative flex items-center max-w-[80%] mx-auto">
+          {/* Search Bar */}
+          <form
+            onSubmit={handleSubmit}
+            className="flex items-center space-x-2 bg-white p-4 border-[1px] border-gray-300 shadow-md rounded-full flex-1"
+          >
+            <button type="submit">
               <SearchIcon className="h-4 text-gray-600" />
             </button>
+
             <input
               className="bg-transparent flex-1 outline-none"
               type="text"
@@ -80,7 +85,17 @@ const Navbar: React.FC = () => {
               onChange={handleSearchInputChange}
             />
           </form>
+
+          {/* Button to add food item */}
+          <button
+            onClick={() => navigate('/add-food')}
+            type="button"
+            className="ml-2 w-14 h-14 flex items-center justify-center border-[1px] border-gray-300 rounded-full hover:bg-gray-300 text-white shadow-md"
+          >
+            <Plus className="text-gray-500 " />
+          </button>
         </div>
+
 
         <div className="flex items-center space-x-2 border-[1px] border-gray-300 p-2  rounded-full shadow-md">
           <DropdownMenu>
