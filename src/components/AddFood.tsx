@@ -12,6 +12,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover"
 import { ChevronDownIcon } from "lucide-react"
 import { Tag, TagInput } from 'emblor';
 import { useEffect, useState } from "react";
+import { cn } from "@/lib/utils"
+
 
 
 const AddFood: React.FC = () => {
@@ -29,19 +31,18 @@ const AddFood: React.FC = () => {
             .min(20, "Description must be at least 20 characters."),
 
         ingredients: yup.array(yup.string().required())
-            .min(1, "At least one ingredient is required").required(),
+            .min(1, "At least one ingredient is required.").required(),
 
         foodPrice: yup.number().transform((value, originalValue) =>
             originalValue === "" ? undefined : value)
             .required("Price is required.")
-            .positive(),
+            .positive("Price must be a positive number."),
         foodQuantity: yup.number().transform((value, originalValue) =>
             originalValue === "" ? undefined : value).required("Quantity is required.")
-            .integer().positive(),
+            .integer().positive("Quantity must be a positive number."),
 
         availableOn: yup.string().required("Date/time is required.")
             .test('valid-datetime', 'Please select a valid future date and time.', function (value) {
-                debugger;
                 if (!value) return false;
                 const selectedDate = new Date(value);
                 const todaysDate = new Date();
@@ -62,12 +63,11 @@ const AddFood: React.FC = () => {
             availableOn: undefined,
         },
         resolver,
-        mode: "onSubmit",
-        reValidateMode: "onChange",
+        mode: "onChange",
+        // reValidateMode: "onChange",
     });
 
     const {
-        register,
         watch,
         setValue,
         trigger,
@@ -79,7 +79,6 @@ const AddFood: React.FC = () => {
     };
 
     //   if (isLoading) return <Spinner />;
-
 
     const updateAvailableOn = (selectedDate?: Date, selectedTime?: string | undefined) => {
         if (!selectedDate || !selectedTime) {
@@ -94,6 +93,8 @@ const AddFood: React.FC = () => {
 
         return combined.toISOString();
     };
+
+    const inputErrorCss = (isError: boolean) => cn("shadow-md py-6 outline-none ring-0 border-0 focus-visible:ring-0 focus-visible:outline-none", isError && "shadow-red-200");
 
     return (
         <div className="my-6 max-w-[90%] mx-auto">
@@ -110,8 +111,8 @@ const AddFood: React.FC = () => {
                                     name="name"
                                     render={({ field }) => (
                                         <Field>
-                                            <FieldLabel htmlFor="name">Food Name</FieldLabel>
-                                            <Input id="name" placeholder="Food Name" {...field} />
+                                            <FieldLabel htmlFor="name">Food Name *</FieldLabel>
+                                            <Input id="name" placeholder="Food Name" {...field} className={inputErrorCss(!!errors.name)} />
                                             <FieldError>
                                                 <FormMessage />
                                             </FieldError>
@@ -126,8 +127,8 @@ const AddFood: React.FC = () => {
                                     name="description"
                                     render={({ field }) => (
                                         <Field>
-                                            <FieldLabel htmlFor="description">Food Description</FieldLabel>
-                                            <Input id="description" placeholder="Description" {...field} />
+                                            <FieldLabel htmlFor="description">Food Description *</FieldLabel>
+                                            <Input id="description" placeholder="Description" {...field} className={inputErrorCss(!!errors.description)} />
                                             <FieldError>
                                                 <FormMessage />
                                             </FieldError>
@@ -142,7 +143,7 @@ const AddFood: React.FC = () => {
                                     name="ingredients"
                                     render={({ field }) => (
                                         <Field>
-                                            <FieldLabel htmlFor="ingredients">Ingredients</FieldLabel>
+                                            <FieldLabel htmlFor="ingredients">Ingredients *</FieldLabel>
                                             <TagInput
                                                 id="ingredients"
                                                 placeholder="Enter ingredients"
@@ -155,6 +156,10 @@ const AddFood: React.FC = () => {
                                                 }}
                                                 activeTagIndex={activeTagIndex}
                                                 setActiveTagIndex={setActiveTagIndex}
+                                                styleClasses={{
+                                                    input: inputErrorCss(!!errors.ingredients),
+                                                    inlineTagsContainer: 'border-0',
+                                                }}
                                             />
                                             <FieldError>
                                                 <FormMessage />
@@ -170,8 +175,8 @@ const AddFood: React.FC = () => {
                                     name="foodPrice"
                                     render={({ field }) => (
                                         <Field>
-                                            <FieldLabel htmlFor="foodPrice">Food Price</FieldLabel>
-                                            <Input id="foodPrice" type="number" placeholder="Food Price" {...field} />
+                                            <FieldLabel htmlFor="foodPrice">Food Price *</FieldLabel>
+                                            <Input id="foodPrice" type="number" placeholder="Food Price" {...field} className={inputErrorCss(!!errors.foodPrice)} />
                                             <FieldError>
                                                 <FormMessage />
                                             </FieldError>
@@ -186,8 +191,8 @@ const AddFood: React.FC = () => {
                                     name="foodQuantity"
                                     render={({ field }) => (
                                         <Field>
-                                            <FieldLabel htmlFor="foodQuantity">Food Quantity</FieldLabel>
-                                            <Input id="foodQuantity" type="number" placeholder="Food Quantity" {...field} />
+                                            <FieldLabel htmlFor="foodQuantity">Food Quantity *</FieldLabel>
+                                            <Input id="foodQuantity" type="number" placeholder="Food Quantity" {...field} className={inputErrorCss(!!errors.foodQuantity)} />
                                             <FieldError>
                                                 <FormMessage />
                                             </FieldError>
@@ -204,15 +209,16 @@ const AddFood: React.FC = () => {
                                         <Field>
                                             <div className="flex gap-4">
                                                 <div className="flex flex-col gap-3">
-                                                    <Label htmlFor="date-picker" className="px-1">
-                                                        Date
-                                                    </Label>
+                                                    <Label htmlFor="date-picker" className="px-1">Date *</Label>
                                                     <Popover open={open} onOpenChange={setOpen}>
                                                         <PopoverTrigger asChild>
                                                             <Button
                                                                 variant="outline"
                                                                 id="date-picker"
-                                                                className="w-32 justify-between font-normal"
+                                                                className={cn(
+                                                                    "w-32 justify-between font-normal",
+                                                                    inputErrorCss(!!errors.availableOn)
+                                                                )}
                                                             >
                                                                 {date ? date.toLocaleDateString() : "Select date"}
                                                                 <ChevronDownIcon />
@@ -234,10 +240,9 @@ const AddFood: React.FC = () => {
                                                     </Popover>
                                                 </div>
                                                 <div className="flex flex-col gap-3">
-                                                    <Label htmlFor="time-picker" className="px-1">
-                                                        Time
-                                                    </Label>
+                                                    <Label htmlFor="time-picker" className="px-1">Time *</Label>
                                                     <Input
+                                                        className={inputErrorCss(!!errors.availableOn)}
                                                         type="time"
                                                         id="time-picker"
                                                         step="1"
