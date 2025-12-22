@@ -1,5 +1,7 @@
 import {
+  CloudinarySignatureTimeStamp,
   CreatePaymentIntent,
+  SignedImageUploadInput,
   LoginRegisterFormInputs,
   UserProfile,
 } from "@/components/Types/Types";
@@ -72,5 +74,17 @@ export const search = async (searchTerm: string) => {
   const response = await homeCookApi.get(`/FoodSearch`, {
     params: { foodSearchTerm: searchTerm },
   });
+  return response.data;
+};
+
+export const createCloudinarySignature = async (): Promise<CloudinarySignatureTimeStamp>  => {
+  const response = await homeCookApi.post("/Cloudinary/signature", {});
+  return response.data;
+};
+
+export const uploadToCloudinary = async (cloudName: string,  imageUploadData: FormData) => {
+  debugger;
+  const response = await axios.create({
+  }).post(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, imageUploadData);
   return response.data;
 };
