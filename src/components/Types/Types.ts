@@ -36,3 +36,8 @@ export type CreatePaymentIntent = {
   Quantity: number;
   FoodId: string;
 };
+
+export type CloudinarySignatureTimeStamp = {
+    timestamp: string;
+    signature: string;
+}
