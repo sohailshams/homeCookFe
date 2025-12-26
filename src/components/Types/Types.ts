@@ -41,3 +41,20 @@ export type CloudinarySignatureTimeStamp = {
     timestamp: string;
     signature: string;
 }
+
+export type SignedImageUploadInput = {
+  file: File;
+  api_key: string;
+  timestamp: string;
+  signature: string;
+}
+
+export type CloudinaryImageResponse = {
+  asset_id: string,
+  public_id: Number,
+  version: Number,
+  signature: string,
+  created_at: string,
+  url: string,
+  secure_url: string,
+}
