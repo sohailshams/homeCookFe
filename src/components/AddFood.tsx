@@ -9,11 +9,15 @@ import { Button } from "./ui/button";
 import { Calendar } from "./ui/calendar";
 import { Label } from "./ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover"
-import { ChevronDownIcon } from "lucide-react"
+import { ChevronDownIcon, CloudUpload } from "lucide-react"
 import { Tag, TagInput } from 'emblor';
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils"
-
+import { Cloudinary } from "@cloudinary/url-gen";
+import ImageUploader from './ImageUploader';
+import { CardContent } from './ui/card';
+import { CloudinaryImageResponse } from './Types/Types';
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from './ui/carousel';
 
 
 const AddFood: React.FC = () => {
@@ -22,6 +26,8 @@ const AddFood: React.FC = () => {
     const [open, setOpen] = useState(false);
     const [date, setDate] = useState<Date | undefined>(undefined);
     const [time, setTime] = useState<string | undefined>(undefined);
+    const [images, setImages] = useState<CloudinaryImageResponse[]>([]);
+
 
     const schema = yup.object({
         name: yup.string().required("Name is required.")
@@ -47,7 +53,9 @@ const AddFood: React.FC = () => {
                 const selectedDate = new Date(value);
                 const todaysDate = new Date();
                 return isAfter(startOfDay(selectedDate), startOfDay(todaysDate));
-            })
+            }),
+        foodImages: yup.array(yup.string().required())
+            .min(1, "At least one food image is required.").required()
     });
 
 
@@ -61,6 +69,7 @@ const AddFood: React.FC = () => {
             foodPrice: undefined,
             foodQuantity: undefined,
             availableOn: undefined,
+            foodImages: Array<string>(),
         },
         resolver,
         mode: "onChange",
@@ -93,178 +102,231 @@ const AddFood: React.FC = () => {
 
         return combined.toISOString();
     };
+    useEffect(() => {
+        console.log('images', images)
+    }, [images])
 
-    const inputErrorCss = (isError: boolean) => cn("shadow-md py-6 outline-none ring-0 border-0 focus-visible:ring-0 focus-visible:outline-none", isError && "shadow-red-200");
+    const inputErrorCss = (isError: boolean) => cn("shadow-md py-6 outline-none ring-0 border-[1px] border-gray-300 rounded-full focus-visible:ring-0 focus-visible:outline-none", isError && "shadow-red-200");
 
     return (
-        <div className="my-6 max-w-[90%] mx-auto">
+        <div className="my-6 max-w-[60%] mx-auto">
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                     <FieldSet>
-                        <FieldLegend>Add Food</FieldLegend>
+                        <FieldLegend>List Food</FieldLegend>
                         <FieldDescription>Please add the food you want to sell.</FieldDescription>
                         <FieldGroup>
-                            {/* NAME */}
-                            <FormItem>
-                                <FormField
-                                    control={form.control}
-                                    name="name"
-                                    render={({ field }) => (
-                                        <Field>
-                                            <FieldLabel htmlFor="name">Food Name *</FieldLabel>
-                                            <Input id="name" placeholder="Food Name" {...field} className={inputErrorCss(!!errors.name)} />
-                                            <FieldError>
-                                                <FormMessage />
-                                            </FieldError>
-                                        </Field>
-                                    )}
-                                />
-                            </FormItem>
-                            {/* DESCRIPTION */}
-                            <FormItem>
-                                <FormField
-                                    control={form.control}
-                                    name="description"
-                                    render={({ field }) => (
-                                        <Field>
-                                            <FieldLabel htmlFor="description">Food Description *</FieldLabel>
-                                            <Input id="description" placeholder="Description" {...field} className={inputErrorCss(!!errors.description)} />
-                                            <FieldError>
-                                                <FormMessage />
-                                            </FieldError>
-                                        </Field>
-                                    )}
-                                />
-                            </FormItem>
-                            {/* Ingredients */}
-                            <FormItem>
-                                <FormField
-                                    control={form.control}
-                                    name="ingredients"
-                                    render={({ field }) => (
-                                        <Field>
-                                            <FieldLabel htmlFor="ingredients">Ingredients *</FieldLabel>
-                                            <TagInput
-                                                id="ingredients"
-                                                placeholder="Enter ingredients"
-                                                tags={tags}
-                                                setTags={(newTags) => {
-                                                    const tagsArr = newTags as Tag[];
-                                                    setTags(tagsArr);
-                                                    setValue("ingredients", tagsArr.map(t => t.text));
-                                                    field.onChange(tagsArr.map(t => t.text));
-                                                }}
-                                                activeTagIndex={activeTagIndex}
-                                                setActiveTagIndex={setActiveTagIndex}
-                                                styleClasses={{
-                                                    input: inputErrorCss(!!errors.ingredients),
-                                                    inlineTagsContainer: 'border-0',
-                                                }}
+                            <div className='flex gap-4'>
+                                <div className='grow'>
+                                    {/* NAME */}
+                                    <FormItem>
+                                        <FormField
+                                            control={form.control}
+                                            name="name"
+                                            render={({ field }) => (
+                                                <Field>
+                                                    <FieldLabel htmlFor="name">Food Name *</FieldLabel>
+                                                    <Input id="name" placeholder="Food Name" {...field} className={inputErrorCss(!!errors.name)} />
+                                                    <FieldError>
+                                                        <FormMessage />
+                                                    </FieldError>
+                                                </Field>
+                                            )}
+                                        />
+                                    </FormItem>
+                                    {/* DESCRIPTION */}
+                                    <FormItem>
+                                        <FormField
+                                            control={form.control}
+                                            name="description"
+                                            render={({ field }) => (
+                                                <Field>
+                                                    <FieldLabel htmlFor="description">Food Description *</FieldLabel>
+                                                    <Input id="description" placeholder="Description" {...field} className={inputErrorCss(!!errors.description)} />
+                                                    <FieldError>
+                                                        <FormMessage />
+                                                    </FieldError>
+                                                </Field>
+                                            )}
+                                        />
+                                    </FormItem>
+                                    {/* Ingredients */}
+                                    <FormItem>
+                                        <FormField
+                                            control={form.control}
+                                            name="ingredients"
+                                            render={({ field }) => (
+                                                <Field>
+                                                    <FieldLabel htmlFor="ingredients">Ingredients *</FieldLabel>
+                                                    <TagInput
+                                                        id="ingredients"
+                                                        placeholder="Enter ingredients"
+                                                        tags={tags}
+                                                        setTags={(newTags) => {
+                                                            const tagsArr = newTags as Tag[];
+                                                            setTags(tagsArr);
+                                                            setValue("ingredients", tagsArr.map(t => t.text));
+                                                            field.onChange(tagsArr.map(t => t.text));
+                                                        }}
+                                                        activeTagIndex={activeTagIndex}
+                                                        setActiveTagIndex={setActiveTagIndex}
+                                                        styleClasses={{
+                                                            input: inputErrorCss(!!errors.ingredients),
+                                                            inlineTagsContainer: 'border-0',
+                                                        }}
+                                                    />
+                                                    <FieldError>
+                                                        <FormMessage />
+                                                    </FieldError>
+                                                </Field>
+                                            )}
+                                        />
+                                    </FormItem>
+                                    <div className='flex itmes-center gap-4'>
+                                        {/* Food Price */}
+                                        <FormItem>
+                                            <FormField
+                                                control={form.control}
+                                                name="foodPrice"
+                                                render={({ field }) => (
+                                                    <Field>
+                                                        <FieldLabel htmlFor="foodPrice">Food Price *</FieldLabel>
+                                                        <Input id="foodPrice" type="number" placeholder="Food Price" {...field} className={inputErrorCss(!!errors.foodPrice)} />
+                                                        <FieldError>
+                                                            <FormMessage />
+                                                        </FieldError>
+                                                    </Field>
+                                                )}
                                             />
-                                            <FieldError>
-                                                <FormMessage />
-                                            </FieldError>
-                                        </Field>
-                                    )}
-                                />
-                            </FormItem>
-                            {/* Food Price */}
-                            <FormItem>
-                                <FormField
-                                    control={form.control}
-                                    name="foodPrice"
-                                    render={({ field }) => (
-                                        <Field>
-                                            <FieldLabel htmlFor="foodPrice">Food Price *</FieldLabel>
-                                            <Input id="foodPrice" type="number" placeholder="Food Price" {...field} className={inputErrorCss(!!errors.foodPrice)} />
-                                            <FieldError>
-                                                <FormMessage />
-                                            </FieldError>
-                                        </Field>
-                                    )}
-                                />
-                            </FormItem>
-                            {/* Food Quantity */}
-                            <FormItem>
-                                <FormField
-                                    control={form.control}
-                                    name="foodQuantity"
-                                    render={({ field }) => (
-                                        <Field>
-                                            <FieldLabel htmlFor="foodQuantity">Food Quantity *</FieldLabel>
-                                            <Input id="foodQuantity" type="number" placeholder="Food Quantity" {...field} className={inputErrorCss(!!errors.foodQuantity)} />
-                                            <FieldError>
-                                                <FormMessage />
-                                            </FieldError>
-                                        </Field>
-                                    )}
-                                />
-                            </FormItem>
-                            {/* Date Available */}
-                            <FormItem>
-                                <FormField
-                                    control={form.control}
-                                    name="availableOn"
-                                    render={({ field }) => (
-                                        <Field>
-                                            <div className="flex gap-4">
-                                                <div className="flex flex-col gap-3">
-                                                    <Label htmlFor="date-picker" className="px-1">Date *</Label>
-                                                    <Popover open={open} onOpenChange={setOpen}>
-                                                        <PopoverTrigger asChild>
-                                                            <Button
-                                                                variant="outline"
-                                                                id="date-picker"
-                                                                className={cn(
-                                                                    "w-32 justify-between font-normal",
-                                                                    inputErrorCss(!!errors.availableOn)
-                                                                )}
-                                                            >
-                                                                {date ? date.toLocaleDateString() : "Select date"}
-                                                                <ChevronDownIcon />
-                                                            </Button>
-                                                        </PopoverTrigger>
-                                                        <PopoverContent className="w-auto overflow-hidden p-0" align="start">
-                                                            <Calendar
-                                                                mode="single"
-                                                                selected={date}
-                                                                captionLayout="dropdown"
-                                                                onSelect={(date) => {
-                                                                    setDate(date)
-                                                                    setOpen(false)
-                                                                    const value = updateAvailableOn(date, time);
+                                        </FormItem>
+                                        {/* Food Quantity */}
+                                        <FormItem>
+                                            <FormField
+                                                control={form.control}
+                                                name="foodQuantity"
+                                                render={({ field }) => (
+                                                    <Field>
+                                                        <FieldLabel htmlFor="foodQuantity">Food Quantity *</FieldLabel>
+                                                        <Input id="foodQuantity" type="number" placeholder="Food Quantity" {...field} className={inputErrorCss(!!errors.foodQuantity)} />
+                                                        <FieldError>
+                                                            <FormMessage />
+                                                        </FieldError>
+                                                    </Field>
+                                                )}
+                                            />
+                                        </FormItem>
+                                    </div>
+                                    {/* Date Available */}
+                                    <FormItem>
+                                        <FormField
+                                            control={form.control}
+                                            name="availableOn"
+                                            render={({ field }) => (
+                                                <Field>
+                                                    <div className="flex gap-4">
+                                                        <div className="flex flex-col gap-3">
+                                                            <Label htmlFor="date-picker" className="px-1">Date *</Label>
+                                                            <Popover open={open} onOpenChange={setOpen}>
+                                                                <PopoverTrigger asChild>
+                                                                    <Button
+                                                                        variant="outline"
+                                                                        id="date-picker"
+                                                                        className={cn(
+                                                                            "w-32 justify-between font-normal",
+                                                                            inputErrorCss(!!errors.availableOn)
+                                                                        )}
+                                                                    >
+                                                                        {date ? date.toLocaleDateString() : "Select date"}
+                                                                        <ChevronDownIcon />
+                                                                    </Button>
+                                                                </PopoverTrigger>
+                                                                <PopoverContent className="w-auto overflow-hidden p-0" align="start">
+                                                                    <Calendar
+                                                                        mode="single"
+                                                                        selected={date}
+                                                                        captionLayout="dropdown"
+                                                                        onSelect={(date) => {
+                                                                            setDate(date)
+                                                                            setOpen(false)
+                                                                            const value = updateAvailableOn(date, time);
+                                                                            field.onChange(value);
+                                                                        }}
+                                                                    />
+                                                                </PopoverContent>
+                                                            </Popover>
+                                                        </div>
+                                                        <div className="flex flex-col gap-3">
+                                                            <Label htmlFor="time-picker" className="px-1">Time *</Label>
+                                                            <Input
+                                                                className={inputErrorCss(!!errors.availableOn)}
+                                                                type="time"
+                                                                id="time-picker"
+                                                                step="1"
+                                                                value={time}
+                                                                onChange={(e) => {
+                                                                    const t = e.target.value;
+                                                                    setTime(t);
+                                                                    const value = updateAvailableOn(date, t);
                                                                     field.onChange(value);
                                                                 }}
                                                             />
-                                                        </PopoverContent>
-                                                    </Popover>
-                                                </div>
-                                                <div className="flex flex-col gap-3">
-                                                    <Label htmlFor="time-picker" className="px-1">Time *</Label>
-                                                    <Input
-                                                        className={inputErrorCss(!!errors.availableOn)}
-                                                        type="time"
-                                                        id="time-picker"
-                                                        step="1"
-                                                        value={time}
-                                                        onChange={(e) => {
-                                                            const t = e.target.value;
-                                                            setTime(t);
-                                                            const value = updateAvailableOn(date, t);
-                                                            field.onChange(value);
-                                                        }}
-                                                    />
-                                                </div>
-                                            </div>
-                                            <FieldError>
-                                                <FormMessage />
-                                            </FieldError>
-                                        </Field>
-                                    )}
-                                />
-                            </FormItem>
+                                                        </div>
+                                                    </div>
+                                                    <FieldError>
+                                                        <FormMessage />
+                                                    </FieldError>
+                                                </Field>
+                                            )}
+                                        />
+                                    </FormItem>
+                                </div>
+                                <FormItem>
+                                    <FormField
+                                        control={form.control}
+                                        name="foodImages"
+                                        render={({ field }) => (
+                                            <Field>
+                                                <FieldLabel htmlFor="foodImages">Food Images *</FieldLabel>
+                                                {images.length === 0 ? (
+                                                    <ImageUploader setImages={setImages} />
+                                                ) : (
+                                                    <>
+                                                        <ImageUploader addMore={true} setImages={setImages} />
+                                                        <Carousel className="!w-80 !h-80">
+                                                            <CarouselContent>
+                                                                {images.map((img, index) => (
+                                                                    <CarouselItem key={index}>
+                                                                        <CardContent className="p-0">
+                                                                            <div className="!w-80 !h-80 relativeaspect-[16/9] overflow-hidden rounded-lg">
+                                                                                <img
+                                                                                    src={img.secure_url}
+                                                                                    alt="Uploaded food image"
+                                                                                    className="w-full h-full object-cover object-center"
+                                                                                />
+                                                                            </div>
+                                                                        </CardContent>
+                                                                    </CarouselItem>
+                                                                ))}
+                                                            </CarouselContent>
+
+                                                            {/* Controls outside the map */}
+                                                            <CarouselPrevious className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 text-white hover:bg-black/70" />
+                                                            <CarouselNext className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 text-white hover:bg-black/70" />
+                                                            {/* <ImageUploader addMore={true} setImages={setImages} /> */}
+                                                        </Carousel>
+                                                    </>
+                                                )}
+                                                <FieldError>
+                                                    <FormMessage />
+                                                </FieldError>
+                                            </Field>
+                                        )}
+                                    />
+                                </FormItem>
+                            </div>
                         </FieldGroup>
                     </FieldSet>
+
                     <button
                         type="submit"
                         className="px-4 py-2 bg-black text-white rounded"
@@ -278,3 +340,17 @@ const AddFood: React.FC = () => {
 }
 
 export default AddFood
+
+
+
+
+
+
+// <Card className="container border-[1px] border-gray-300 !h-80 !w-80 shadow-md object-cover object-center"><img className='object-cover object-center' src={images[0]?.secure_url} /></Card>
+// <Card className="border border-gray-300 !h-80 !w-80 shadow-md overflow-hidden shrink-0 grow-0">
+//     <img
+//         src={images[0]?.secure_url}
+//         className="w-full h-full object-cover object-center"
+//         alt=""
+//     />
+// </Card>
