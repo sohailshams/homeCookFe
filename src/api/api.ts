@@ -83,7 +83,6 @@ export const createCloudinarySignature = async (): Promise<CloudinarySignatureTi
 };
 
 export const uploadToCloudinary = async (cloudName: string,  imageUploadData: FormData) => {
-  debugger;
   const response = await axios.create({
   }).post(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, imageUploadData);
   return response.data;
