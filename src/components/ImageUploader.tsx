@@ -9,9 +9,10 @@ import { CloudinaryImageResponse } from './Types/Types';
 type ImageUploaderProps = {
     setImages: React.Dispatch<React.SetStateAction<CloudinaryImageResponse[]>>;
     addMore?: boolean;
+    hasImageError?: boolean;
 }
 
-const ImageUploader: React.FC<ImageUploaderProps> = ({ setImages, addMore = false }) => {
+const ImageUploader: React.FC<ImageUploaderProps> = ({ setImages, addMore = false, hasImageError = false }) => {
     const [uploading, setUploading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -46,7 +47,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ setImages, addMore = fals
                 isDragActive ?
                     <p>Drop the files here ...</p> :
                     addMore ? <Button type="button" variant='outline' className='px-4 py-2 bg-black text-white rounded'>Add More</Button> :
-                        <Button className={cn("container border-[1px] border-gray-300 !h-80 !w-80 shadow-md", true && "shadow-red-200")} type="button" variant="outline"><CloudUpload className='!w-12 !h-12' /></Button>
+                        <Button className={cn("container border-[1px] border-gray-300 !h-80 !w-80 shadow-md", hasImageError && "shadow-red-200")} type="button" variant="outline"><CloudUpload className='!w-12 !h-12' /></Button>
             }
         </div>
     )

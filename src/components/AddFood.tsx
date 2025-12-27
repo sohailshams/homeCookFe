@@ -107,6 +107,7 @@ const AddFood: React.FC = () => {
     }, [images])
 
     const inputErrorCss = (isError: boolean) => cn("shadow-md py-6 outline-none ring-0 border-[1px] border-gray-300 rounded-full focus-visible:ring-0 focus-visible:outline-none", isError && "shadow-red-200");
+    const hasImageError = !!errors.foodImages;
 
     return (
         <div className="my-6 max-w-[60%] mx-auto">
@@ -288,7 +289,7 @@ const AddFood: React.FC = () => {
                                             <Field>
                                                 <FieldLabel htmlFor="foodImages">Food Images *</FieldLabel>
                                                 {images.length === 0 ? (
-                                                    <ImageUploader setImages={setImages} />
+                                                    <ImageUploader hasImageError={hasImageError} setImages={setImages} />
                                                 ) : (
                                                     <>
                                                         <ImageUploader addMore={true} setImages={setImages} />
