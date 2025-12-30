@@ -1,34 +1,50 @@
 import { uploadImagesToCloudinary } from '@/utils/utils';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Button } from './ui/button';
-import { CloudUpload } from 'lucide-react';
+import { CloudUpload, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { CloudinaryImageResponse } from './Types/Types';
+import { useMutation } from '@tanstack/react-query';
+import { AxiosError } from 'axios';
+import { toast } from 'sonner';
 
 type ImageUploaderProps = {
     setImages: React.Dispatch<React.SetStateAction<CloudinaryImageResponse[]>>;
     addMore?: boolean;
     hasImageError?: boolean;
+    setIsUploading: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const ImageUploader: React.FC<ImageUploaderProps> = ({ setImages, addMore = false, hasImageError = false }) => {
-    const [uploading, setUploading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-
+const ImageUploader: React.FC<ImageUploaderProps> = ({ setImages, addMore = false, hasImageError = false, setIsUploading }) => {
+    const { mutateAsync: uploadImageMutation, isPending } = useMutation({
+        mutationFn: uploadImagesToCloudinary,
+        onError: (err: AxiosError) => {
+            if (err) {
+                toast.error("Failed to upload image, please try again", {
+                    duration: Infinity,
+                    action: {
+                        label: <X />,
+                        onClick: () => toast.dismiss(),
+                    },
+                    id: "uploadImage-fail-toast",
+                });
+            }
+        },
+        onSuccess: async () => {
+            toast.success("Image upload successfully");
+        }
+    });
     const onDrop = useCallback(async (images: File[]) => {
         if (!images || images.length === 0) return;
 
-        try {
-            setError(null);
-            setUploading(true);
-            const results = await uploadImagesToCloudinary(images);
-            setImages((prev) => [...prev, ...results]);
-        } catch (error) {
-            setError("One or more images failed to upload.");
-        }
+        const results = await uploadImageMutation(images);
+        setImages((prev) => [...prev, ...results]);
+    }, [uploadImageMutation, setImages])
 
-    }, [])
+    useEffect(() => {
+        setIsUploading(isPending);
+    }, [isPending, setIsUploading]);
 
     const { getRootProps, getInputProps, isDragActive } = useDropzone({
         onDrop,
@@ -40,6 +56,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ setImages, addMore = fals
         multiple: true,
         maxFiles: 10,
     })
+
     return (
         <div {...getRootProps()}>
             <input {...getInputProps()} />
