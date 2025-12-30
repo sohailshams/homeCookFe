@@ -87,3 +87,9 @@ export const uploadToCloudinary = async (cloudName: string,  imageUploadData: Fo
   }).post(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, imageUploadData);
   return response.data;
 };
+
+export const deleteCloudinaryImage = async (public_id: string) => {
+ const response = await homeCookApi.delete(`/Cloudinary/${public_id}`, {});
+  return response.data;
+};
+
