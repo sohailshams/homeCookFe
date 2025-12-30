@@ -51,7 +51,7 @@ export type SignedImageUploadInput = {
 
 export type CloudinaryImageResponse = {
   asset_id: string,
-  public_id: Number,
+  public_id: string,
   version: Number,
   signature: string,
   created_at: string,
