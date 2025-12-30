@@ -9,7 +9,7 @@ import { Button } from "./ui/button";
 import { Calendar } from "./ui/calendar";
 import { Label } from "./ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover"
-import { ChevronDownIcon, CloudUpload } from "lucide-react"
+import { ChevronDownIcon, CloudUpload, X } from "lucide-react"
 import { Tag, TagInput } from 'emblor';
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils"
@@ -18,6 +18,11 @@ import ImageUploader from './ImageUploader';
 import { CardContent } from './ui/card';
 import { CloudinaryImageResponse } from './Types/Types';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from './ui/carousel';
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { deleteCloudinaryImage } from '@/api/api';
+import { AxiosError } from 'axios';
+import { toast } from 'sonner';
+import Spinner from './Spinner';
 
 
 const AddFood: React.FC = () => {
@@ -27,6 +32,7 @@ const AddFood: React.FC = () => {
     const [date, setDate] = useState<Date | undefined>(undefined);
     const [time, setTime] = useState<string | undefined>(undefined);
     const [images, setImages] = useState<CloudinaryImageResponse[]>([]);
+    const [isUploading, setIsUploading] = useState(false);
 
 
     const schema = yup.object({
@@ -102,12 +108,33 @@ const AddFood: React.FC = () => {
 
         return combined.toISOString();
     };
-    useEffect(() => {
-        console.log('images', images)
-    }, [images])
+
+    const { mutate: deleteFoodListingImageeMutation, isPending } = useMutation({
+        mutationFn: deleteCloudinaryImage,
+        onError: (err: AxiosError) => {
+            if (err) {
+                toast.error("Failed to delete image, please try again", {
+                    duration: Infinity,
+                    action: {
+                        label: <X />,
+                        onClick: () => toast.dismiss(),
+                    },
+                    id: "deleteImage-fail-toast",
+                });
+            }
+        },
+        onSuccess: async (_data, publicId) => {
+            toast.success("Image deleted successfully");
+            setImages((preImages) => {
+                return preImages.filter(image => image.public_id !== publicId)
+            })
+        }
+    });
 
     const inputErrorCss = (isError: boolean) => cn("shadow-md py-6 outline-none ring-0 border-[1px] border-gray-300 rounded-full focus-visible:ring-0 focus-visible:outline-none", isError && "shadow-red-200");
     const hasImageError = !!errors.foodImages;
+
+    // if (isPending) return <Spinner />;
 
     return (
         <div className="my-6 max-w-[60%] mx-auto">
@@ -289,21 +316,37 @@ const AddFood: React.FC = () => {
                                             <Field>
                                                 <FieldLabel htmlFor="foodImages">Food Images *</FieldLabel>
                                                 {images.length === 0 ? (
-                                                    <ImageUploader hasImageError={hasImageError} setImages={setImages} />
+                                                    <div className="relative">
+                                                        <ImageUploader hasImageError={hasImageError} setImages={setImages} setIsUploading={setIsUploading} />
+                                                        {isUploading && (
+                                                            <div className="h-full w-full absolute top-0 z-50 flex justify-center bg-black/30 rounded-lg">
+                                                                <Spinner fullScreen={false} />
+                                                            </div>
+                                                        )}
+                                                    </div>
                                                 ) : (
                                                     <>
-                                                        <ImageUploader addMore={true} setImages={setImages} />
-                                                        <Carousel className="!w-80 !h-80">
+                                                        <ImageUploader addMore={true} setImages={setImages} setIsUploading={setIsUploading} />
+                                                        <Carousel className="!w-80 !h-80 relative">
                                                             <CarouselContent>
                                                                 {images.map((img, index) => (
                                                                     <CarouselItem key={index}>
                                                                         <CardContent className="p-0">
-                                                                            <div className="!w-80 !h-80 relativeaspect-[16/9] overflow-hidden rounded-lg">
+                                                                            <div className="group !w-80 !h-80 relative aspect-[16/9] overflow-hidden rounded-lg">
                                                                                 <img
                                                                                     src={img.secure_url}
                                                                                     alt="Uploaded food image"
                                                                                     className="w-full h-full object-cover object-center"
                                                                                 />
+                                                                                <Button
+                                                                                    type="button"
+                                                                                    variant="ghost"
+                                                                                    size="icon"
+                                                                                    onClick={() => deleteFoodListingImageeMutation(img.public_id)}
+                                                                                    className="absolute top-2 right-2 bg-black/70 text-white rounded-full opacity-0 group-hover:opacity-100 duration-700"
+                                                                                >
+                                                                                    <X className="w-4 h-4" />
+                                                                                </Button>
                                                                             </div>
                                                                         </CardContent>
                                                                     </CarouselItem>
@@ -313,7 +356,11 @@ const AddFood: React.FC = () => {
                                                             {/* Controls outside the map */}
                                                             <CarouselPrevious className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 text-white hover:bg-black/70" />
                                                             <CarouselNext className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 text-white hover:bg-black/70" />
-                                                            {/* <ImageUploader addMore={true} setImages={setImages} /> */}
+                                                            {isPending && (
+                                                                <div className="h-full w-full absolute top-0 z-50 flex justify-center bg-black/30 rounded-lg">
+                                                                    <Spinner fullScreen={false} />
+                                                                </div>
+                                                            )}
                                                         </Carousel>
                                                     </>
                                                 )}
