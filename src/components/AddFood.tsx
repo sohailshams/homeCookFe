@@ -199,8 +199,8 @@ const AddFood: React.FC = () => {
                                                         activeTagIndex={activeTagIndex}
                                                         setActiveTagIndex={setActiveTagIndex}
                                                         styleClasses={{
-                                                            input: inputErrorCss(!!errors.ingredients),
-                                                            inlineTagsContainer: 'border-0',
+                                                            input: "rounded-full py-4",
+                                                            inlineTagsContainer: cn(inputErrorCss(!!errors.ingredients), "!py-3"),
                                                         }}
                                                     />
                                                     <FieldError>
