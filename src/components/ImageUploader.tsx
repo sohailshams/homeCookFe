@@ -32,7 +32,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ setImages, addMore = fals
             }
         },
         onSuccess: async () => {
-            toast.success("Image upload successfully");
+            toast.success("Image uploaded successfully");
         }
     });
     const onDrop = useCallback(async (images: File[]) => {
@@ -62,6 +62,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ setImages, addMore = fals
             <input {...getInputProps()} />
             {
                 isDragActive ?
+                    // Drag and drop logic implementation
                     <p>Drop the files here ...</p> :
                     addMore ? <Button type="button" variant='outline' className='px-4 py-2 bg-black text-white rounded'>Add More</Button> :
                         <Button className={cn("container border-[1px] border-gray-300 !h-80 !w-80 shadow-md", hasImageError && "shadow-red-200")} type="button" variant="outline"><CloudUpload className='!w-12 !h-12' /></Button>
