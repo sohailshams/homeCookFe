@@ -356,7 +356,7 @@ const AddFood: React.FC = () => {
                                                             {/* Controls outside the map */}
                                                             <CarouselPrevious className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 text-white hover:bg-black/70" />
                                                             <CarouselNext className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 text-white hover:bg-black/70" />
-                                                            {isPending && (
+                                                            {(isPending || isUploading) && (
                                                                 <div className="h-full w-full absolute top-0 z-50 flex justify-center bg-black/30 rounded-lg">
                                                                     <Spinner fullScreen={false} />
                                                                 </div>
@@ -388,17 +388,3 @@ const AddFood: React.FC = () => {
 }
 
 export default AddFood
-
-
-
-
-
-
-// <Card className="container border-[1px] border-gray-300 !h-80 !w-80 shadow-md object-cover object-center"><img className='object-cover object-center' src={images[0]?.secure_url} /></Card>
-// <Card className="border border-gray-300 !h-80 !w-80 shadow-md overflow-hidden shrink-0 grow-0">
-//     <img
-//         src={images[0]?.secure_url}
-//         className="w-full h-full object-cover object-center"
-//         alt=""
-//     />
-// </Card>
