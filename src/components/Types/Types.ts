@@ -8,10 +8,15 @@ export type Category = {
   name: string;
 };
 
+export type FoodImages = {
+  imageUrl: string;
+  publicId: string
+}
+
 export type Food = {
   id: number;
   name: string;
-  foodImageUrls: string[];
+  foodImages: FoodImages[];
   price: number;
   description: string;
   category: Category;
