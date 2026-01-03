@@ -43,7 +43,15 @@ const FoodList: React.FC<FoodListProps> = ({ categoryId }) => {
     });
   }
 
-  if (isError) return <div>Error fetching food list.</div>;
+  if (isError) {
+    return (
+      <Alert className="mt-10 w-5/6 mx-auto bg-red-100">
+        <AlertDescription className="flex items-center justify-center gap-x-2 text-xl text-gray-700 max-sm:text-sm">
+          <Info /> Error fetching food list.
+        </AlertDescription>
+      </Alert>
+    )
+  }
   if (isLoading) return <Spinner />;
 
   return (
