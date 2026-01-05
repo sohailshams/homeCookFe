@@ -93,3 +93,7 @@ export const deleteCloudinaryImage = async (public_id: string) => {
   return response.data;
 };
 
+export const addFood = async (data: any)  => {
+  const response = await homeCookApi.post("/food", data);
+  return response.data;
+};
