@@ -13,7 +13,7 @@ const FoodCard: React.FC<FoodCardProps> = ({ food }) => {
       className="bg-white shadow-lg rounded-lg overflow-hidden max-[375px]:mx-auto cursor-pointer"
     >
       <img
-        src={food.foodImageUrls[0]}
+        src={food.foodImages[0].imageUrl}
         alt={food.name}
         className="w-full h-56 object-cover object-center"
       />

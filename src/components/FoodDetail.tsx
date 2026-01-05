@@ -26,7 +26,7 @@ import { Button } from "./ui/button";
 import * as zod from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { Food } from "./Types/Types";
+import { Food, FoodImages } from "./Types/Types";
 
 const FoodDetail: React.FC = () => {
   const navigate = useNavigate();
@@ -104,13 +104,13 @@ const FoodDetail: React.FC = () => {
     <div className="my-6 max-w-[90%] mx-auto grid grid-cols-1 md:grid-cols-2 gap-4">
       <Carousel className="w-full">
         <CarouselContent>
-          {food?.foodImageUrls.map((img: string, index: number) => (
+          {food?.foodImages.map((img: FoodImages, index: number) => (
             <CarouselItem key={index}>
               <div className="p-1">
                 <CardContent className="p-0">
                   <div className="relative w-full min-h-96 max-h-full aspect-[16/9] overflow-hidden">
                     <img
-                      src={img}
+                      src={img.imageUrl}
                       alt={food.name}
                       className="w-full h-full object-cover object-center"
                     />
