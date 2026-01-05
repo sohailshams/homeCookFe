@@ -4,7 +4,7 @@ export type LoginRegisterFormInputs = {
 };
 
 export type Category = {
-  id: number;
+  id: string;
   name: string;
 };
 
@@ -26,7 +26,7 @@ export type Food = {
 };
 
 export type UserProfile = {
-  id: number;
+  id: string;
   firstName: string;
   lastName: string;
   phoneNumber: string;
