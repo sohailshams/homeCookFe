@@ -16,13 +16,14 @@ import { cn } from "@/lib/utils"
 import { Cloudinary } from "@cloudinary/url-gen";
 import ImageUploader from './ImageUploader';
 import { CardContent } from './ui/card';
-import { CloudinaryImageResponse } from './Types/Types';
+import { CloudinaryImageResponse, FoodImages } from './Types/Types';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from './ui/carousel';
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { deleteCloudinaryImage } from '@/api/api';
+import { addFood, deleteCloudinaryImage } from '@/api/api';
 import { AxiosError } from 'axios';
 import { toast } from 'sonner';
 import Spinner from './Spinner';
+import { useAuth } from "@/contexts/AuthContext";
 
 
 const AddFood: React.FC = () => {
@@ -33,6 +34,7 @@ const AddFood: React.FC = () => {
     const [time, setTime] = useState<string | undefined>(undefined);
     const [images, setImages] = useState<CloudinaryImageResponse[]>([]);
     const [isUploading, setIsUploading] = useState(false);
+    const { user } = useAuth();
 
 
     const schema = yup.object({
@@ -45,37 +47,42 @@ const AddFood: React.FC = () => {
         ingredients: yup.array(yup.string().required())
             .min(1, "At least one ingredient is required.").required(),
 
-        foodPrice: yup.number().transform((value, originalValue) =>
+        price: yup.number().transform((value, originalValue) =>
             originalValue === "" ? undefined : value)
             .required("Price is required.")
             .positive("Price must be a positive number."),
-        foodQuantity: yup.number().transform((value, originalValue) =>
+        quantityAvailable: yup.number().transform((value, originalValue) =>
             originalValue === "" ? undefined : value).required("Quantity is required.")
             .integer().positive("Quantity must be a positive number."),
 
-        availableOn: yup.string().required("Date/time is required.")
+        availableDate: yup.string().required("Date/time is required.")
             .test('valid-datetime', 'Please select a valid future date and time.', function (value) {
                 if (!value) return false;
                 const selectedDate = new Date(value);
                 const todaysDate = new Date();
                 return isAfter(startOfDay(selectedDate), startOfDay(todaysDate));
             }),
-        foodImages: yup.array(yup.string().required())
+        foodImages: yup.array(yup.object({
+            imageUrl: yup.string().required(),
+            publicId: yup.string().required(),
+        }))
             .min(1, "At least one food image is required.").required()
     });
 
 
     type formFields = yup.InferType<typeof schema>;
+    type AddFoodData = formFields & { sellerId: string; categoryId: string };
+
     const resolver = yupResolver(schema);
     const form = useForm<formFields>({
         defaultValues: {
             name: '',
             description: '',
             ingredients: Array<string>(),
-            foodPrice: undefined,
-            foodQuantity: undefined,
-            availableOn: undefined,
-            foodImages: Array<string>(),
+            price: undefined,
+            quantityAvailable: undefined,
+            availableDate: undefined,
+            foodImages: Array<FoodImages>(),
         },
         resolver,
         mode: "onChange",
@@ -89,8 +96,58 @@ const AddFood: React.FC = () => {
         formState: { errors, isValid },
     } = form;
 
-    const onSubmit = (data: formFields) => {
-        console.log("Form submitted:", data);
+    useEffect(() => {
+        if (images.length === 0) return;
+
+        setValue(
+            "foodImages",
+            images.map(img => {
+                return {
+                    imageUrl: img.secure_url,
+                    publicId: img.public_id
+                };
+            }),
+            {
+                shouldValidate: true,
+                shouldDirty: true,
+                shouldTouch: true,
+            }
+        );
+
+    }, [images, setValue]);
+
+    const { mutateAsync: addFoodMutation, isPending: foodIsPending } = useMutation({
+        mutationFn: addFood,
+        onError: (err: AxiosError) => {
+            if (err) {
+                toast.error("Failed to add food, please try again", {
+                    duration: Infinity,
+                    action: {
+                        label: <X />,
+                        onClick: () => toast.dismiss(),
+                    },
+                    id: "addFood-fail-toast",
+                });
+            }
+        },
+        onSuccess: async () => {
+            toast.success("Food added successfully");
+        }
+    });
+
+    const onSubmit = (data: AddFoodData) => {
+        if (isValid) {
+            if (!user) {
+                toast.error("User not authenticated");
+                return;
+            }
+            console.log('user>>>>', user?.id)
+            data.sellerId = user.id
+            data.categoryId = "08eb21eb-9a30-4145-8936-35debd67b102";
+            data.postCode = "M16 0JF";
+            addFoodMutation(data);
+            console.log("Form submitted:", data);
+        }
     };
 
     //   if (isLoading) return <Spinner />;
@@ -215,11 +272,11 @@ const AddFood: React.FC = () => {
                                         <FormItem>
                                             <FormField
                                                 control={form.control}
-                                                name="foodPrice"
+                                                name="price"
                                                 render={({ field }) => (
                                                     <Field>
-                                                        <FieldLabel htmlFor="foodPrice">Food Price *</FieldLabel>
-                                                        <Input id="foodPrice" type="number" placeholder="Food Price" {...field} className={inputErrorCss(!!errors.foodPrice)} />
+                                                        <FieldLabel htmlFor="price">Food Price *</FieldLabel>
+                                                        <Input id="price" type="number" placeholder="Food Price" {...field} className={inputErrorCss(!!errors.price)} />
                                                         <FieldError>
                                                             <FormMessage />
                                                         </FieldError>
@@ -231,11 +288,11 @@ const AddFood: React.FC = () => {
                                         <FormItem>
                                             <FormField
                                                 control={form.control}
-                                                name="foodQuantity"
+                                                name="quantityAvailable"
                                                 render={({ field }) => (
                                                     <Field>
-                                                        <FieldLabel htmlFor="foodQuantity">Food Quantity *</FieldLabel>
-                                                        <Input id="foodQuantity" type="number" placeholder="Food Quantity" {...field} className={inputErrorCss(!!errors.foodQuantity)} />
+                                                        <FieldLabel htmlFor="quantityAvailable">Food Quantity *</FieldLabel>
+                                                        <Input id="quantityAvailable" type="number" placeholder="Food Quantity" {...field} className={inputErrorCss(!!errors.quantityAvailable)} />
                                                         <FieldError>
                                                             <FormMessage />
                                                         </FieldError>
@@ -248,7 +305,7 @@ const AddFood: React.FC = () => {
                                     <FormItem>
                                         <FormField
                                             control={form.control}
-                                            name="availableOn"
+                                            name="availableDate"
                                             render={({ field }) => (
                                                 <Field>
                                                     <div className="flex gap-4">
@@ -261,7 +318,7 @@ const AddFood: React.FC = () => {
                                                                         id="date-picker"
                                                                         className={cn(
                                                                             "w-32 justify-between font-normal",
-                                                                            inputErrorCss(!!errors.availableOn)
+                                                                            inputErrorCss(!!errors.availableDate)
                                                                         )}
                                                                     >
                                                                         {date ? date.toLocaleDateString() : "Select date"}
@@ -286,7 +343,7 @@ const AddFood: React.FC = () => {
                                                         <div className="flex flex-col gap-3">
                                                             <Label htmlFor="time-picker" className="px-1">Time *</Label>
                                                             <Input
-                                                                className={inputErrorCss(!!errors.availableOn)}
+                                                                className={inputErrorCss(!!errors.availableDate)}
                                                                 type="time"
                                                                 id="time-picker"
                                                                 step="1"
@@ -377,6 +434,7 @@ const AddFood: React.FC = () => {
 
                     <button
                         type="submit"
+                        disabled={isUploading}
                         className="px-4 py-2 bg-black text-white rounded"
                     >
                         Submit
