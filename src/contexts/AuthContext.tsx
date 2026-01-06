@@ -11,7 +11,7 @@ import {
 import { useNavigate } from "react-router-dom";
 
 export type User = {
-  id: number;
+  id: string;
   userName: string;
   userEmail: string | null;
   isProfileComplete: boolean;
