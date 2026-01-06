@@ -9,7 +9,7 @@ import { Button } from "./ui/button";
 import { Calendar } from "./ui/calendar";
 import { Label } from "./ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover"
-import { ChevronDownIcon, CloudUpload, X } from "lucide-react"
+import { ChevronDownIcon, CloudUpload, SquareChevronDown, X } from "lucide-react"
 import { Tag, TagInput } from 'emblor';
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils"
@@ -24,6 +24,9 @@ import { AxiosError } from 'axios';
 import { toast } from 'sonner';
 import Spinner from './Spinner';
 import { useAuth } from "@/contexts/AuthContext";
+import { useCategories } from '@/contexts/CategoryContext';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from './ui/dropdown-menu';
+
 
 
 const AddFood: React.FC = () => {
@@ -35,9 +38,12 @@ const AddFood: React.FC = () => {
     const [images, setImages] = useState<CloudinaryImageResponse[]>([]);
     const [isUploading, setIsUploading] = useState(false);
     const { user } = useAuth();
+    const { categoriesList } = useCategories();
 
 
     const schema = yup.object({
+        category: yup.string().required("Category is required.")
+            .min(2, "Name must be at least 2 characters."),
         name: yup.string().required("Name is required.")
             .min(2, "Name must be at least 2 characters."),
 
@@ -65,8 +71,7 @@ const AddFood: React.FC = () => {
         foodImages: yup.array(yup.object({
             imageUrl: yup.string().required(),
             publicId: yup.string().required(),
-        }))
-            .min(1, "At least one food image is required.").required()
+        })).min(1, "At least one food image is required.").required()
     });
 
 
@@ -138,10 +143,9 @@ const AddFood: React.FC = () => {
     const onSubmit = (data: AddFoodData) => {
         if (isValid) {
             if (!user) {
-                toast.error("User not authenticated");
+                toast.error("Please sign in and try again");
                 return;
             }
-            console.log('user>>>>', user?.id)
             data.sellerId = user.id
             data.categoryId = "08eb21eb-9a30-4145-8936-35debd67b102";
             data.postCode = "M16 0JF";
@@ -201,8 +205,42 @@ const AddFood: React.FC = () => {
                         <FieldLegend>List Food</FieldLegend>
                         <FieldDescription>Please add the food you want to sell.</FieldDescription>
                         <FieldGroup>
-                            <div className='flex gap-4'>
+                            <div className="flex gap-4">
                                 <div className='grow'>
+                                    {/* Category List */}
+                                    <FormItem className="w-[200px]">
+                                        <FormField
+                                            control={form.control}
+                                            name="category"
+                                            render={({ field }) => (
+                                                <Field>
+                                                    <FieldLabel htmlFor="categories">Categories *</FieldLabel>
+                                                    <div className={cn("space-x-2 border-[1px] border-gray-300 p-2  rounded-full shadow-md", !!errors.category && "shadow-red-200")}>
+                                                        <DropdownMenu>
+                                                            <DropdownMenuTrigger className="focus:outline-none flex items-center justify-between w-full">
+                                                                <span className="pl-2">{field.value ?? "Select an option"}</span>
+                                                                <SquareChevronDown className="mr-4" />
+                                                            </DropdownMenuTrigger>
+                                                            <DropdownMenuContent className="mt-2">
+                                                                <DropdownMenuSeparator />
+                                                                {categoriesList?.map(category => (
+                                                                    <DropdownMenuItem
+                                                                        onClick={() => field.onChange(category.name)}
+                                                                        className="cursor-pointer"
+                                                                    >
+                                                                        {category.name}
+                                                                    </DropdownMenuItem>
+                                                                ))}
+                                                            </DropdownMenuContent>
+                                                        </DropdownMenu>
+                                                    </div>
+                                                    <FieldError>
+                                                        <FormMessage />
+                                                    </FieldError>
+                                                </Field>
+                                            )}
+                                        />
+                                    </FormItem>
                                     {/* NAME */}
                                     <FormItem>
                                         <FormField
