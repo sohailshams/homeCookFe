@@ -50,13 +50,13 @@ export const fetchFoodDetail = async (foodId: string | undefined) => {
   return response.data;
 };
 
-export const fetchUserProfile = async (userId: number | undefined) => {
+export const fetchUserProfile = async (userId: string | undefined) => {
   const response = await homeCookApi.get(`/profile/${userId}`);
   return response.data;
 };
 
 export const addProfile = async (data: Omit<UserProfile, "id">) => {
-  const response = await homeCookApi.post("/profile", data);
+  const response = await homeCookApi.post("/Profile", data);
   return response.data;
 };
 
@@ -77,23 +77,31 @@ export const search = async (searchTerm: string) => {
   return response.data;
 };
 
-export const createCloudinarySignature = async (): Promise<CloudinarySignatureTimeStamp>  => {
-  const response = await homeCookApi.post("/Cloudinary/signature", {});
-  return response.data;
-};
+export const createCloudinarySignature =
+  async (): Promise<CloudinarySignatureTimeStamp> => {
+    const response = await homeCookApi.post("/Cloudinary/signature", {});
+    return response.data;
+  };
 
-export const uploadToCloudinary = async (cloudName: string,  imageUploadData: FormData) => {
-  const response = await axios.create({
-  }).post(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, imageUploadData);
+export const uploadToCloudinary = async (
+  cloudName: string,
+  imageUploadData: FormData,
+) => {
+  const response = await axios
+    .create({})
+    .post(
+      `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+      imageUploadData,
+    );
   return response.data;
 };
 
 export const deleteCloudinaryImage = async (public_id: string) => {
- const response = await homeCookApi.delete(`/Cloudinary/${public_id}`, {});
+  const response = await homeCookApi.delete(`/Cloudinary/${public_id}`, {});
   return response.data;
 };
 
-export const addFood = async (data: any)  => {
+export const addFood = async (data: any) => {
   const response = await homeCookApi.post("/food", data);
   return response.data;
 };
