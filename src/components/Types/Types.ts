@@ -10,8 +10,8 @@ export type Category = {
 
 export type FoodImages = {
   imageUrl: string;
-  publicId: string
-}
+  publicId: string;
+};
 
 export type Food = {
   id: number;
@@ -30,7 +30,7 @@ export type UserProfile = {
   firstName: string;
   lastName: string;
   phoneNumber: string;
-  address: string;
+  addressLine1: string;
   city: string;
   country: string;
   postCode: string;
@@ -43,23 +43,23 @@ export type CreatePaymentIntent = {
 };
 
 export type CloudinarySignatureTimeStamp = {
-    timestamp: string;
-    signature: string;
-}
+  timestamp: string;
+  signature: string;
+};
 
 export type SignedImageUploadInput = {
   file: File;
   api_key: string;
   timestamp: string;
   signature: string;
-}
+};
 
 export type CloudinaryImageResponse = {
-  asset_id: string,
-  public_id: string,
-  version: Number,
-  signature: string,
-  created_at: string,
-  url: string,
-  secure_url: string,
-}
+  asset_id: string;
+  public_id: string;
+  version: Number;
+  signature: string;
+  created_at: string;
+  url: string;
+  secure_url: string;
+};
