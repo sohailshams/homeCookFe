@@ -58,6 +58,14 @@ const Navbar: React.FC = () => {
     setSearch(" ");
   };
 
+  const handleNavigationToAddFood = () => {
+    if (user?.isProfileComplete) {
+      navigate('/add-food')
+    } else {
+      navigate('/profile')
+    }
+  }
+
   return (
     <div className=" py-6 my-2 border-b-[1px] border-gray-300 sticky top-0 z-50 bg-white">
       <div className="flex items-center max-w-[80%] mx-auto ">
@@ -95,7 +103,7 @@ const Navbar: React.FC = () => {
           <Tooltip>
             <TooltipTrigger asChild>
               <button
-                onClick={() => navigate('/add-food')}
+                onClick={handleNavigationToAddFood}
                 type="button"
                 className="ml-2 w-14 h-14 flex items-center justify-center border-[1px] border-gray-300 rounded-full hover:bg-gray-300 text-white shadow-md"
               >
