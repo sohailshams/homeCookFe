@@ -12,6 +12,7 @@ import PaymentSuccess from "./components/PaymentSuccess";
 import { FoodContainer } from "./components/FoodContainer";
 import AddFood from "./components/AddFood";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import Profile from "./components/Profile";
 
 
 
@@ -68,6 +69,14 @@ function App() {
                   <AddFood />
                 </ProtectedRoute>
               }
+            />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            }
             />
           </Route>
         </Routes>
