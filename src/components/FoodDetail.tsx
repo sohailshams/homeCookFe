@@ -77,7 +77,7 @@ const FoodDetail: React.FC = () => {
 
   const handleOrder = () => {
     if (!isValid) return;
-    navigate("/checkoutContainer", {
+    navigate("/checkout", {
       state: {
         foodId: foodId,
         quantity: watch("foodQuantity"),
