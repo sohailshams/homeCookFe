@@ -8,7 +8,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { addProfile, fetchUserProfile, updateProfile } from "@/api/api";
 import Spinner from "./Spinner";
-import ProfileForm from "./ProfileForm";
+import Profile from "./Profile";
 import { toast } from "sonner";
 import { MutationStatus } from "@/utils/Enums";
 import { decrementFoodQuantity, incrementFoodQuantity } from "@/utils/utils";
@@ -17,6 +17,21 @@ import {
   useElements,
   PaymentElement,
 } from "@stripe/react-stripe-js";
+import { Card } from "./ui/card";
+import { Button } from "./ui/button";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "./ui/dialog";
+import { Field, FieldGroup } from "./ui/field";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
 
 type CheckoutProps = {
   itemQuantity: number;
@@ -39,15 +54,15 @@ const Checkout: React.FC<CheckoutProps> = ({
   const stripe = useStripe();
   const elements = useElements();
 
-  const {
-    data: profileData,
-    isLoading,
-    isError,
-  } = useQuery<UserProfile>({
-    queryFn: () => fetchUserProfile(user?.id),
-    queryKey: ["userProfile"],
-    enabled: !!user?.isProfileComplete,
-  });
+  // const {
+  //   data: profileData,
+  //   isLoading,
+  //   isError,
+  // } = useQuery<UserProfile>({
+  //   queryFn: () => fetchUserProfile(user?.id),
+  //   queryKey: ["userProfile"],
+  //   enabled: !!user?.isProfileComplete,
+  // });
 
   const schema = zod.object({
     foodQuantity: zod.coerce
@@ -81,44 +96,54 @@ const Checkout: React.FC<CheckoutProps> = ({
     formState: { errors, isValid },
   } = methods;
 
-  const { mutate: addUpdateProfileMutation, status } = useMutation({
-    mutationFn: user?.isProfileComplete ? updateProfile : addProfile,
-    onError: (err: AxiosError) => {
-      if (err) {
-        toast.error("Failed to save profile informatoin, please try again", {
-          duration: Infinity,
-          action: {
-            label: <X />,
-            onClick: () => toast.dismiss(),
-          },
-          id: "profileSave-fail-toast",
-        });
-      }
-    },
-    onSuccess: async () => {
-      toast.success("Profile updated successfully.");
-    },
+  const {
+    data: profileData,
+    isLoading,
+    isError,
+  } = useQuery<UserProfile>({
+    queryFn: () => fetchUserProfile(user?.id),
+    queryKey: ["userProfile"],
+    enabled: !!user && user?.isProfileComplete,
   });
 
-  const handleProfileSubmit = async (
-    data: Omit<UserProfile, "id"> & { userId: number | undefined }
-  ) => {
-    if (isValid) {
-      addUpdateProfileMutation(data);
-    }
-  };
+  // const { mutate: addUpdateProfileMutation, status } = useMutation({
+  //   mutationFn: user?.isProfileComplete ? updateProfile : addProfile,
+  //   onError: (err: AxiosError) => {
+  //     if (err) {
+  //       toast.error("Failed to save profile information, please try again", {
+  //         duration: Infinity,
+  //         action: {
+  //           label: <X />,
+  //           onClick: () => toast.dismiss(),
+  //         },
+  //         id: "profileSave-fail-toast",
+  //       });
+  //     }
+  //   },
+  //   onSuccess: async () => {
+  //     toast.success("Profile updated successfully.");
+  //   },
+  // });
 
-  if (isLoading) return <Spinner />;
-  if (isError) {
-    toast.error("Failed to load profile informatoin, please try again", {
-      duration: Infinity,
-      action: {
-        label: <X />,
-        onClick: () => toast.dismiss(),
-      },
-      id: "getProfile-fail-toast",
-    });
-  }
+  // const handleProfileSubmit = async (
+  //   data: Omit<UserProfile, "id"> & { userId: number | undefined }
+  // ) => {
+  //   if (isValid) {
+  //     addUpdateProfileMutation(data);
+  //   }
+  // };
+
+  // if (isLoading) return <Spinner />;
+  // if (isError) {
+  //   toast.error("Failed to load profile information, please try again", {
+  //     duration: Infinity,
+  //     action: {
+  //       label: <X />,
+  //       onClick: () => toast.dismiss(),
+  //     },
+  //     id: "getProfile-fail-toast",
+  //   });
+  // }
 
   const handlePayment = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -164,11 +189,82 @@ const Checkout: React.FC<CheckoutProps> = ({
   return (
     <div className="flex my-6 max-w-[90%] mx-auto flex-col lg:flex-row text-gray-700">
       <div className="w-full lg:w-3/5 grow">
-        <ProfileForm
-          profileData={profileData}
-          onSubmit={handleProfileSubmit}
-          status={status as MutationStatus}
-        />
+        <h1 className="text-4xl font-bold">CheckOut</h1>
+        <Card className="my-4 p-4">
+          <p className="my-4 text-xl font-bold">My Informarion</p>
+          <div>
+            <p>
+              {profileData?.firstName} {profileData?.lastName}
+            </p>
+            <p>{user?.userName}</p>
+          </div>
+          <div>
+            <p className="my-4 text-xl font-bold">Delivery Address</p>
+            <p>{profileData?.addressLine1}</p>
+            <p>{profileData?.city}</p>
+            <p>{profileData?.postCode}</p>
+            <p>{profileData?.city}</p>
+            <p>{profileData?.country}</p>
+          </div>
+          <Dialog>
+            <form>
+              <DialogTrigger asChild>
+                <Button variant="outline" className="border border-black mt-2">
+                  Edit Delivery Address
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-sm">
+                <DialogHeader>
+                  <DialogTitle>Edit Delivery Address</DialogTitle>
+                  <DialogDescription>
+                    Make changes to your delivery address here. Click save when
+                    you&apos;re done.
+                  </DialogDescription>
+                </DialogHeader>
+                <FieldGroup>
+                  <Field>
+                    <Label htmlFor="address">Address</Label>
+                    <Input
+                      id="address"
+                      name="address"
+                      defaultValue={profileData?.addressLine1}
+                    />
+                  </Field>
+                  <Field>
+                    <Label htmlFor="city">City</Label>
+                    <Input
+                      id="city"
+                      name="city"
+                      defaultValue={profileData?.city}
+                    />
+                  </Field>
+                  <Field>
+                    <Label htmlFor="postCode">Post Code</Label>
+                    <Input
+                      id="postCode"
+                      name="postCode"
+                      defaultValue={profileData?.postCode}
+                    />
+                  </Field>
+                  <Field>
+                    <Label htmlFor="country">Country</Label>
+                    <Input
+                      id="country"
+                      name="country"
+                      defaultValue={profileData?.country}
+                    />
+                  </Field>
+                </FieldGroup>
+                <DialogFooter>
+                  <DialogClose asChild>
+                    <Button variant="outline">Cancel</Button>
+                  </DialogClose>
+                  <Button type="submit">Save changes</Button>
+                </DialogFooter>
+              </DialogContent>
+            </form>
+          </Dialog>
+        </Card>
       </div>
       <div className="w-full lg:w-2/5 flex-none text-gray-700">
         <div className="p-4">
@@ -183,7 +279,7 @@ const Checkout: React.FC<CheckoutProps> = ({
                     Number(watch("foodQuantity")),
                     setValue,
                     trigger,
-                    "foodQuantity"
+                    "foodQuantity",
                   );
                   setItemQuantity(Number(watch("foodQuantity")));
                 }}
@@ -202,7 +298,7 @@ const Checkout: React.FC<CheckoutProps> = ({
                     Number(watch("foodQuantity")),
                     setValue,
                     trigger,
-                    "foodQuantity"
+                    "foodQuantity",
                   );
                   setItemQuantity(Number(watch("foodQuantity")));
                 }}
@@ -220,8 +316,8 @@ const Checkout: React.FC<CheckoutProps> = ({
             <p>£{price * watch("foodQuantity")}</p>
           </div>
           <form onSubmit={handlePayment} className="mt-4">
-            {!stripe || !clientSecret ? <Spinner /> : <PaymentElement />}
-
+            {/* {!stripe || !clientSecret ? <Spinner /> : <PaymentElement />} */}
+            <PaymentElement />
             <button
               type="submit"
               disabled={!isValid}
