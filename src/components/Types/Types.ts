@@ -34,6 +34,7 @@ export type UserProfile = {
   city: string;
   country: string;
   postCode: string;
+  isPrimary: boolean;
 };
 
 export type CreatePaymentIntent = {
@@ -62,4 +63,13 @@ export type CloudinaryImageResponse = {
   created_at: string;
   url: string;
   secure_url: string;
+};
+
+export type UserAddress = {
+  userId: string;
+  addressLine1: string;
+  city: string;
+  country: string;
+  postCode: string;
+  isPrimary: boolean;
 };
