@@ -1,12 +1,17 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { CircleMinus, CirclePlus, X } from "lucide-react";
-import * as zod from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import * as yup from "yup";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { SubmitHandler, useForm } from "react-hook-form";
 import { UserProfile } from "./Types/Types";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
-import { addProfile, fetchUserProfile, updateProfile } from "@/api/api";
+import {
+  addProfile,
+  addUserAddress,
+  fetchUserProfile,
+  updateProfile,
+} from "@/api/api";
 import Spinner from "./Spinner";
 import Profile from "./Profile";
 import { toast } from "sonner";
@@ -29,9 +34,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "./ui/dialog";
-import { Field, FieldGroup } from "./ui/field";
+import { Field, FieldGroup, FieldLabel } from "./ui/field";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useEffect, useState } from "react";
+import { Controller } from "react-hook-form";
 
 type CheckoutProps = {
   itemQuantity: number;
@@ -53,35 +61,34 @@ const Checkout: React.FC<CheckoutProps> = ({
   const { user } = useAuth();
   const stripe = useStripe();
   const elements = useElements();
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const queryClient = useQueryClient();
+  const returnUrl = `${import.meta.env.VITE_APP_RETURN_URL}`;
 
-  // const {
-  //   data: profileData,
-  //   isLoading,
-  //   isError,
-  // } = useQuery<UserProfile>({
-  //   queryFn: () => fetchUserProfile(user?.id),
-  //   queryKey: ["userProfile"],
-  //   enabled: !!user?.isProfileComplete,
-  // });
+  const {
+    data: profileData,
+    isLoading,
+    isError,
+  } = useQuery<UserProfile>({
+    queryFn: () => fetchUserProfile(user?.id),
+    queryKey: ["userProfile"],
+    enabled: !!user && user?.isProfileComplete,
+  });
 
-  const schema = zod.object({
-    foodQuantity: zod.coerce
-      .number({
-        required_error: "Quantity is missing.",
-      })
-      .min(1, { message: "Quantity must be at least 1." })
+  const schema = yup.object({
+    foodQuantity: yup
+      .number()
+      .required("Quantity is required.")
+      .min(1, "Quantity must be at least 1.")
       .max(quantityAvailable ?? 0, {
         message: `Quantity must be less than or equal to ${
           quantityAvailable ?? 0
         }.`,
-      })
-      .int({
-        message: "Please add an integer.",
       }),
   });
 
-  type formFields = zod.infer<typeof schema>;
-  const resolver = zodResolver(schema);
+  type formFields = yup.InferType<typeof schema>;
+  const resolver = yupResolver(schema);
   const methods = useForm<formFields>({
     defaultValues: { foodQuantity: itemQuantity },
     resolver,
@@ -96,54 +103,79 @@ const Checkout: React.FC<CheckoutProps> = ({
     formState: { errors, isValid },
   } = methods;
 
-  const {
-    data: profileData,
-    isLoading,
-    isError,
-  } = useQuery<UserProfile>({
-    queryFn: () => fetchUserProfile(user?.id),
-    queryKey: ["userProfile"],
-    enabled: !!user && user?.isProfileComplete,
+  const addressSchema = yup.object({
+    addressLine1: yup
+      .string()
+      .min(2, "Address is required.")
+      .required("Address is required."),
+    city: yup
+      .string()
+      .min(2, "City is required.")
+      .required("City is required."),
+    postCode: yup
+      .string()
+      .min(2, "Post code is required.")
+      .required("Post code is required."),
+    country: yup
+      .string()
+      .min(2, "Country is required.")
+      .required("Country is required."),
+    isPrimary: yup.boolean().default(false),
   });
 
-  // const { mutate: addUpdateProfileMutation, status } = useMutation({
-  //   mutationFn: user?.isProfileComplete ? updateProfile : addProfile,
-  //   onError: (err: AxiosError) => {
-  //     if (err) {
-  //       toast.error("Failed to save profile information, please try again", {
-  //         duration: Infinity,
-  //         action: {
-  //           label: <X />,
-  //           onClick: () => toast.dismiss(),
-  //         },
-  //         id: "profileSave-fail-toast",
-  //       });
-  //     }
-  //   },
-  //   onSuccess: async () => {
-  //     toast.success("Profile updated successfully.");
-  //   },
-  // });
+  type addressFormFields = yup.InferType<typeof addressSchema>;
+  const addressResolver = yupResolver(addressSchema);
 
-  // const handleProfileSubmit = async (
-  //   data: Omit<UserProfile, "id"> & { userId: number | undefined }
-  // ) => {
-  //   if (isValid) {
-  //     addUpdateProfileMutation(data);
-  //   }
-  // };
+  const addressForm = useForm<addressFormFields>({
+    defaultValues: {
+      addressLine1: profileData?.addressLine1 || "",
+      city: profileData?.city || "",
+      postCode: profileData?.postCode || "",
+      country: profileData?.country || "",
+      isPrimary: false,
+    },
+    resolver: addressResolver,
+    mode: "onChange",
+  });
 
-  // if (isLoading) return <Spinner />;
-  // if (isError) {
-  //   toast.error("Failed to load profile information, please try again", {
-  //     duration: Infinity,
-  //     action: {
-  //       label: <X />,
-  //       onClick: () => toast.dismiss(),
-  //     },
-  //     id: "getProfile-fail-toast",
-  //   });
-  // }
+  const {
+    register: addressRegister,
+    reset: addressReset,
+    handleSubmit: addressHandleSubmit,
+    formState: { errors: addressErrors, isValid: isAddressValid },
+  } = addressForm;
+
+  useEffect(() => {
+    if (profileData) {
+      addressReset({
+        addressLine1: profileData.addressLine1 || "",
+        city: profileData.city || "",
+        postCode: profileData.postCode || "",
+        country: profileData.country || "",
+        isPrimary: profileData.isPrimary || false,
+      });
+    }
+  }, [profileData]);
+
+  const { mutate: addUserAddressMutation, status } = useMutation({
+    mutationFn: addUserAddress,
+    onError: (err: AxiosError) => {
+      if (err) {
+        toast.error("Failed to save address, please try again", {
+          duration: Infinity,
+          action: {
+            label: <X />,
+            onClick: () => toast.dismiss(),
+          },
+          id: "addressSave-fail-toast",
+        });
+      }
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["userProfile"] });
+      toast.success("Address updated successfully.");
+    },
+  });
 
   const handlePayment = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -170,7 +202,7 @@ const Checkout: React.FC<CheckoutProps> = ({
       elements,
       clientSecret,
       confirmParams: {
-        return_url: `http://localhost:5173/payment-success`,
+        return_url: returnUrl,
       },
     });
 
@@ -186,6 +218,34 @@ const Checkout: React.FC<CheckoutProps> = ({
     }
   };
 
+  const onAddressSubmit: SubmitHandler<addressFormFields> = async (
+    addressData: addressFormFields,
+  ) => {
+    if (isAddressValid) {
+      if (!user?.id) return;
+      const userId = user.id;
+      const payload = { ...addressData, userId };
+      addUserAddressMutation(payload);
+    }
+    setIsEditModalOpen(false);
+  };
+
+  if (isLoading || status === "pending") return <Spinner />;
+
+  if (isError) {
+    toast.error("Failed to load profile information, please try again", {
+      duration: Infinity,
+      action: {
+        label: <X />,
+        onClick: () => toast.dismiss(),
+      },
+      id: "getProfile-fail-toast",
+    });
+  }
+
+  if (!stripe || !elements) {
+    return <Spinner />;
+  }
   return (
     <div className="flex my-6 max-w-[90%] mx-auto flex-col lg:flex-row text-gray-700">
       <div className="w-full lg:w-3/5 grow">
@@ -206,14 +266,18 @@ const Checkout: React.FC<CheckoutProps> = ({
             <p>{profileData?.city}</p>
             <p>{profileData?.country}</p>
           </div>
-          <Dialog>
-            <form>
-              <DialogTrigger asChild>
-                <Button variant="outline" className="border border-black mt-2">
-                  Edit Delivery Address
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-sm">
+          <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline" className="border border-black mt-2">
+                Edit Delivery Address
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-sm">
+              <form
+                onSubmit={addressHandleSubmit(onAddressSubmit, (errs) =>
+                  console.log("ADDRESS FORM INVALID", errs),
+                )}
+              >
                 <DialogHeader>
                   <DialogTitle>Edit Delivery Address</DialogTitle>
                   <DialogDescription>
@@ -224,35 +288,55 @@ const Checkout: React.FC<CheckoutProps> = ({
                 <FieldGroup>
                   <Field>
                     <Label htmlFor="address">Address</Label>
-                    <Input
-                      id="address"
-                      name="address"
-                      defaultValue={profileData?.addressLine1}
-                    />
+                    <Input {...addressRegister("addressLine1")} id="address" />
+                    {addressErrors.addressLine1 && (
+                      <p className="text-red-500 text-sm ">
+                        {addressErrors.addressLine1.message}
+                      </p>
+                    )}
                   </Field>
                   <Field>
                     <Label htmlFor="city">City</Label>
-                    <Input
-                      id="city"
-                      name="city"
-                      defaultValue={profileData?.city}
-                    />
+                    <Input {...addressRegister("city")} id="city" />
+                    {addressErrors.city && (
+                      <p className="text-red-500 text-sm ">
+                        {addressErrors.city.message}
+                      </p>
+                    )}
                   </Field>
                   <Field>
                     <Label htmlFor="postCode">Post Code</Label>
-                    <Input
-                      id="postCode"
-                      name="postCode"
-                      defaultValue={profileData?.postCode}
-                    />
+                    <Input {...addressRegister("postCode")} id="postCode" />
+                    {addressErrors.postCode && (
+                      <p className="text-red-500 text-sm ">
+                        {addressErrors.postCode.message}
+                      </p>
+                    )}
                   </Field>
                   <Field>
                     <Label htmlFor="country">Country</Label>
-                    <Input
-                      id="country"
-                      name="country"
-                      defaultValue={profileData?.country}
+                    <Input {...addressRegister("country")} id="country" />
+                    {addressErrors.country && (
+                      <p className="text-red-500 text-sm ">
+                        {addressErrors.country.message}
+                      </p>
+                    )}
+                  </Field>
+                  <Field orientation="horizontal" className="mb-3">
+                    <Controller
+                      control={addressForm.control}
+                      name="isPrimary"
+                      render={({ field }) => (
+                        <Checkbox
+                          id="isPrimary"
+                          checked={!!field.value}
+                          onCheckedChange={(v) => field.onChange(v === true)}
+                        />
+                      )}
                     />
+                    <FieldLabel htmlFor="isPrimary">
+                      Make this my primary address
+                    </FieldLabel>
                   </Field>
                 </FieldGroup>
                 <DialogFooter>
@@ -261,8 +345,8 @@ const Checkout: React.FC<CheckoutProps> = ({
                   </DialogClose>
                   <Button type="submit">Save changes</Button>
                 </DialogFooter>
-              </DialogContent>
-            </form>
+              </form>
+            </DialogContent>
           </Dialog>
         </Card>
       </div>
