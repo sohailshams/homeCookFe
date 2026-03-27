@@ -4,6 +4,7 @@ import {
   SignedImageUploadInput,
   LoginRegisterFormInputs,
   UserProfile,
+  UserAddress,
 } from "@/components/Types/Types";
 import axios from "axios";
 
@@ -103,5 +104,10 @@ export const deleteCloudinaryImage = async (public_id: string) => {
 
 export const addFood = async (data: any) => {
   const response = await homeCookApi.post("/food", data);
+  return response.data;
+};
+
+export const addUserAddress = async (data: UserAddress) => {
+  const response = await homeCookApi.put("/UserAddress/AddUserAddress", data);
   return response.data;
 };
