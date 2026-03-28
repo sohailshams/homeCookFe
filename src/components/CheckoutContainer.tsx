@@ -3,11 +3,13 @@ import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe, StripeElementsOptions } from "@stripe/stripe-js";
 import { useMutation } from "@tanstack/react-query";
 import { AxiosError } from "axios";
-import { X } from "lucide-react";
+import { Info, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { toast } from "sonner";
 import Checkout from "./Checkout";
+import { Alert, AlertDescription } from "./ui/alert";
+import Spinner from "./Spinner";
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 type LocationState = {
@@ -19,13 +21,17 @@ type LocationState = {
 };
 
 const CheckoutContainer: React.FC = () => {
-  const [clientSecret, setClientSecret] = useState<string>("");
   const location = useLocation();
   const { foodId, quantity, price, name, quantityAvailable } =
     (location.state as LocationState) || {};
   const [itemQuantity, setItemQuantity] = useState<number>(quantity);
 
-  const { mutate: createPaymentIntentMutation, data } = useMutation({
+  const {
+    mutate: createPaymentIntentMutation,
+    data,
+    isPending,
+    isError,
+  } = useMutation({
     mutationFn: createPaymentIntent,
     onError: (err: AxiosError) => {
       if (err) {
@@ -47,23 +53,29 @@ const CheckoutContainer: React.FC = () => {
       Quantity: itemQuantity,
       FoodId: foodId,
     });
-  }, [itemQuantity, setItemQuantity]);
-
-  useEffect(() => {
-    if (data?.clientSecret && !clientSecret) {
-      setClientSecret(data.clientSecret);
-    }
-  }, [data?.clientSecret, clientSecret]);
+  }, [itemQuantity]);
 
   const stripeOptions = useMemo((): StripeElementsOptions | undefined => {
     return {
       mode: "payment",
       currency: "gbp",
-      amount: itemQuantity * price,
+      amount: itemQuantity * price * 100,
     };
-  }, [clientSecret]);
+  }, [itemQuantity, price]);
 
   if (!stripeOptions || !stripePromise) return null;
+
+  if (isPending) {
+    return <Spinner />;
+  }
+
+  if (isError) {
+    <Alert className="mt-10 w-5/6 mx-auto bg-red-100">
+      <AlertDescription className="flex items-center justify-center gap-x-2 text-xl text-gray-700 max-sm:text-sm">
+        <Info /> Failed to initialise payment, please try again.
+      </AlertDescription>
+    </Alert>;
+  }
 
   return (
     <Elements stripe={stripePromise} options={stripeOptions}>
@@ -73,9 +85,10 @@ const CheckoutContainer: React.FC = () => {
         price={price}
         name={name}
         quantityAvailable={quantityAvailable}
-        clientSecret={clientSecret}
+        clientSecret={data?.clientSecret}
       />
     </Elements>
   );
 };
+
 export default CheckoutContainer;
