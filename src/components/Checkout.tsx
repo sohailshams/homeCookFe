@@ -6,16 +6,9 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { UserProfile } from "./Types/Types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
-import {
-  addProfile,
-  addUserAddress,
-  fetchUserProfile,
-  updateProfile,
-} from "@/api/api";
+import { addUserAddress, fetchUserProfile } from "@/api/api";
 import Spinner from "./Spinner";
-import Profile from "./Profile";
 import { toast } from "sonner";
-import { MutationStatus } from "@/utils/Enums";
 import { decrementFoodQuantity, incrementFoodQuantity } from "@/utils/utils";
 import {
   useStripe,
@@ -273,11 +266,7 @@ const Checkout: React.FC<CheckoutProps> = ({
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-sm">
-              <form
-                onSubmit={addressHandleSubmit(onAddressSubmit, (errs) =>
-                  console.log("ADDRESS FORM INVALID", errs),
-                )}
-              >
+              <form onSubmit={addressHandleSubmit(onAddressSubmit)}>
                 <DialogHeader>
                   <DialogTitle>Edit Delivery Address</DialogTitle>
                   <DialogDescription>
@@ -400,7 +389,6 @@ const Checkout: React.FC<CheckoutProps> = ({
             <p>£{price * watch("foodQuantity")}</p>
           </div>
           <form onSubmit={handlePayment} className="mt-4">
-            {/* {!stripe || !clientSecret ? <Spinner /> : <PaymentElement />} */}
             <PaymentElement />
             <button
               type="submit"
