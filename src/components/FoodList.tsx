@@ -1,5 +1,5 @@
 import { Info, X } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import Spinner from "./Spinner";
 import { fetchFoodByCategory, fetchFoodList, search } from "@/api/api";
@@ -15,12 +15,13 @@ interface FoodListProps {
 const FoodList: React.FC<FoodListProps> = ({ categoryId }) => {
   const [searchParams] = useSearchParams();
   const query = searchParams.get("query") || "";
+  const queryClient = useQueryClient();
 
   const {
     data: food,
     isLoading,
     isError,
-    isSuccess
+    isSuccess,
   } = useQuery({
     queryFn: () => {
       if (query && !categoryId) {
@@ -31,7 +32,11 @@ const FoodList: React.FC<FoodListProps> = ({ categoryId }) => {
     queryKey: ["foodList", categoryId, query],
   });
 
-  if (isSuccess) { }
+  // Invalidate every query in the cache
+  queryClient.invalidateQueries({ queryKey: ["foodList"] });
+
+  if (isSuccess) {
+  }
   if (isError) {
     toast.error("Error fetching food list from database.", {
       duration: Infinity,
@@ -50,17 +55,19 @@ const FoodList: React.FC<FoodListProps> = ({ categoryId }) => {
           <Info /> Error fetching food list.
         </AlertDescription>
       </Alert>
-    )
+    );
   }
   if (isLoading) return <Spinner />;
 
   return (
     <>
       {!food || food.length === 0 ? (
-
         <Alert className="mt-10 w-5/6 mx-auto bg-red-100">
           <AlertDescription className="flex items-center justify-center gap-x-2 text-xl text-gray-700 max-sm:text-sm">
-            <Info /> {query ? "No matching foods found." : "No food available in this category, please try another category."}
+            <Info />{" "}
+            {query
+              ? "No matching foods found."
+              : "No food available in this category, please try another category."}
           </AlertDescription>
         </Alert>
       ) : (
