@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { Info, X } from "lucide-react";
 import Spinner from "./Spinner";
 import { Alert, AlertDescription } from "./ui/alert";
+import { isValid as isValidPostcode, fix } from "postcode";
 
 
 const Profile: React.FC = () => {
@@ -52,8 +53,11 @@ const schema = yup.object({
   phoneNumber: yup.string().required("Phone number is required."),
   city: yup.string().min(2, "City is required.").required("City is required."),
   addressLine1: yup.string().min(2, "Address is required.").required("Address is required."),
-  postCode: yup.string().min(2, "Post code is required.").required("Post code is required."),
-  country: yup.string().min(2, "Country is required.").required("Country is required."),
+  postCode: yup.string().required("Post code is required.")
+    .transform((value) => fix(value))
+    .test("is-valid-postcode", "Please enter a valid UK postcode.", 
+    (value) => isValidPostcode(value ?? "")),
+  country: yup.string().required("Country is required."),
 });
   type formFields = yup.InferType<typeof schema>;
 
