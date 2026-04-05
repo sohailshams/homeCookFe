@@ -34,7 +34,7 @@ export type UserProfile = {
   city: string;
   country: string;
   postCode: string;
-  isPrimary: boolean;
+  isPrimary?: boolean;
 };
 
 export type CreatePaymentIntent = {
