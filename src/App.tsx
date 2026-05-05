@@ -13,8 +13,8 @@ import { FoodContainer } from "./components/FoodContainer";
 import AddFood from "./components/AddFood";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import Profile from "./components/Profile";
-
-
+import PostcodeSearchBox from "./components/PostcodeSearchBox";
+import PostLoginRedirect from "./components/PostLoginRedirect";
 
 function App() {
   const { user } = useAuth();
@@ -27,7 +27,23 @@ function App() {
         <Routes>
           <Route
             index
-            element={!user ? <Login /> : <Navigate to={"/food-list"} />}
+            element={!user ? <Login /> : <Navigate to={"/redirect"} />}
+          />
+          <Route
+            path="/redirect"
+            element={
+              <ProtectedRoute>
+                <PostLoginRedirect />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/postcode-search"
+            element={
+              // <ProtectedRoute>
+              <PostcodeSearchBox />
+              // </ProtectedRoute>
+            }
           />
           <Route element={<Layout />}>
             <Route
@@ -70,13 +86,13 @@ function App() {
                 </ProtectedRoute>
               }
             />
-          <Route
-            path="/profile"
-            element={
-              <ProtectedRoute>
-                <Profile />
-              </ProtectedRoute>
-            }
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              }
             />
           </Route>
         </Routes>
