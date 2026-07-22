@@ -1,8 +1,8 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { CircleMinus, CirclePlus, X } from "lucide-react";
-import * as yup from "yup";
-import { yupResolver } from "@hookform/resolvers/yup";
-import { SubmitHandler, useForm } from "react-hook-form";
+import * as zod from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Resolver, SubmitHandler, useForm } from "react-hook-form";
 import { UserProfile } from "./Types/Types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
@@ -68,10 +68,9 @@ const Checkout: React.FC<CheckoutProps> = ({
     enabled: !!user && user?.isProfileComplete,
   });
 
-  const schema = yup.object({
-    foodQuantity: yup
-      .number()
-      .required("Quantity is required.")
+  const schema = zod.object({
+    foodQuantity: zod.coerce
+      .number({ message: "Quantity is required." })
       .min(1, "Quantity must be at least 1.")
       .max(quantityAvailable ?? 0, {
         message: `Quantity must be less than or equal to ${
@@ -80,8 +79,8 @@ const Checkout: React.FC<CheckoutProps> = ({
       }),
   });
 
-  type formFields = yup.InferType<typeof schema>;
-  const resolver = yupResolver(schema);
+  type formFields = zod.infer<typeof schema>;
+  const resolver = zodResolver(schema) as Resolver<formFields>;
   const methods = useForm<formFields>({
     defaultValues: { foodQuantity: itemQuantity },
     resolver,
@@ -96,28 +95,18 @@ const Checkout: React.FC<CheckoutProps> = ({
     formState: { errors, isValid },
   } = methods;
 
-  const addressSchema = yup.object({
-    addressLine1: yup
-      .string()
-      .min(2, "Address is required.")
-      .required("Address is required."),
-    city: yup
-      .string()
-      .min(2, "City is required.")
-      .required("City is required."),
-    postCode: yup
-      .string()
-      .min(2, "Post code is required.")
-      .required("Post code is required."),
-    country: yup
-      .string()
-      .min(2, "Country is required.")
-      .required("Country is required."),
-    isPrimary: yup.boolean().default(false),
+  const addressSchema = zod.object({
+    addressLine1: zod.string().min(2, "Address is required."),
+    city: zod.string().min(2, "City is required."),
+    postCode: zod.string().min(2, "Post code is required."),
+    country: zod.string().min(2, "Country is required."),
+    isPrimary: zod.boolean(),
   });
 
-  type addressFormFields = yup.InferType<typeof addressSchema>;
-  const addressResolver = yupResolver(addressSchema);
+  type addressFormFields = zod.infer<typeof addressSchema>;
+  const addressResolver = zodResolver(
+    addressSchema,
+  ) as Resolver<addressFormFields>;
 
   const addressForm = useForm<addressFormFields>({
     defaultValues: {

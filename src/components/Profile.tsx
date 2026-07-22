@@ -1,8 +1,8 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { UserProfile } from "./Types/Types";
 import { useEffect } from "react";
-import * as yup from "yup";
-import { yupResolver } from "@hookform/resolvers/yup";
+import * as zod from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { LoadingButton } from "./ui/LoadingButton";
 import { MutationStatus } from "@/utils/Enums";
@@ -47,21 +47,24 @@ const Profile: React.FC = () => {
     enabled: !!user && user?.isProfileComplete,
   });
 
-const schema = yup.object({
-  firstName: yup.string().min(2, "First name is required.").required("First name is required."),
-  lastName: yup.string().min(2, "Last name is required.").required("Last name is required."),
-  phoneNumber: yup.string().required("Phone number is required."),
-  city: yup.string().min(2, "City is required.").required("City is required."),
-  addressLine1: yup.string().min(2, "Address is required.").required("Address is required."),
-  postCode: yup.string().required("Post code is required.")
+const schema = zod.object({
+  firstName: zod.string().min(2, "First name is required."),
+  lastName: zod.string().min(2, "Last name is required."),
+  phoneNumber: zod.string().min(1, "Phone number is required."),
+  city: zod.string().min(2, "City is required."),
+  addressLine1: zod.string().min(2, "Address is required."),
+  postCode: zod
+    .string()
+    .min(1, "Post code is required.")
     .transform((value) => fix(value))
-    .test("is-valid-postcode", "Please enter a valid UK postcode.", 
-    (value) => isValidPostcode(value ?? "")),
-  country: yup.string().required("Country is required."),
+    .refine((value) => isValidPostcode(value ?? ""), {
+      message: "Please enter a valid UK postcode.",
+    }),
+  country: zod.string().min(1, "Country is required."),
 });
-  type formFields = yup.InferType<typeof schema>;
+  type formFields = zod.infer<typeof schema>;
 
-  const resolver = yupResolver(schema);
+  const resolver = zodResolver(schema);
 
   const methods = useForm<formFields>({
     defaultValues: {
