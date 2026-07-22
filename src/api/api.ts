@@ -26,6 +26,10 @@ export const fetchUserInfo = async () => {
   return await homeCookApi.get("/user");
 };
 
+export const fetchUserAndPostCodeInfo = async () => {
+  return await homeCookApi.get("/user/user-with-postcode");
+};
+
 export const fetchFoodList = async () => {
   const response = await homeCookApi.get("/food");
   return response.data;
