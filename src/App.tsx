@@ -3,7 +3,6 @@ import Login from "./components/Login";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "sonner";
 import { useAuth } from "./contexts/AuthContext";
-import Spinner from "./components/Spinner";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Layout from "./components/Layout";
 import FoodDetail from "./components/FoodDetail";
@@ -18,7 +17,6 @@ import PostLoginRedirect from "./components/PostLoginRedirect";
 
 function App() {
   const { user } = useAuth();
-  if (user === undefined) return <Spinner />;
 
   return (
     <>
@@ -40,9 +38,9 @@ function App() {
           <Route
             path="/postcode-search"
             element={
-              // <ProtectedRoute>
-              <PostcodeSearchBox />
-              // </ProtectedRoute>
+              <ProtectedRoute>
+                <PostcodeSearchBox />
+              </ProtectedRoute>
             }
           />
           <Route element={<Layout />}>
